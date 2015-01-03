@@ -1,0 +1,25 @@
+{
+	"name": "marttiphpbb/usertopiccount",
+	"type": "phpbb-extension",
+	"description": "Show the number of topics the user started",
+	"homepage": "https://github.com/marttiphpbb/phpbb-ext-usertopiccount",
+	"version": "0.1.0",
+	"time": "2015-01-03",
+	"license": "MIT",
+	"authors": [{
+			"name": "martti",
+			"email": "info@martti.be",
+			"homepage": "https://github.com/marttiphpbb/",
+			"role": "Developer"
+		}],
+	"require": {
+		"php": ">=5.3.3"
+
+	},
+	"extra": {
+		"display-name": "User Topic Count",
+		"soft-require": {
+			"phpbb/phpbb": ">=3.1.0-RC2,<3.2.*@dev"
+		}
+	}
+}

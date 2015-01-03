@@ -1,0 +1,12 @@
+services:
+    marttiphpbb.usertopiccount.listener:
+        class: marttiphpbb\usertopiccount\event\listener
+        arguments:
+            - @auth
+            - @config
+            - @controller.helper
+            - %core.php_ext%
+            - @template
+            - @user
+        tags:
+            - { name: event.listener }
