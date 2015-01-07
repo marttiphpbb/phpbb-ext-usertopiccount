@@ -1,5 +1,6 @@
 ;(function($, window, document) {
-	$('dd.profile-posts').after(
-
-	);
+	$('dl.postprofile dd.profile-topics').each(function(){
+		$(this).insertAfter($(this).siblings('dd.profile-posts'));
+		$(this).show();
+	});
 })(jQuery, window, document);
