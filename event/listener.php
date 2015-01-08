@@ -98,8 +98,12 @@ class listener implements EventSubscriberInterface
 	{
 		$member = $event['member'];
 
+		$user_id = $member['user_id'];
+		$search = ($this->config['load_search'] && $this->auth->acl_get('u_search')) ? append_sid($this->phpbb_root_path . 'search.' . $this->php_ext, 'author_id=' . $user_id . '&amp;sr=topics') : '';
+
 		$this->template->assign_vars(array(
-			'USERTOPICCOUNT'	=> $member['user_topic_count'],
+			'USERTOPICCOUNT'			=> $member['user_topic_count'],
+			'U_USERTOPICCOUNT_SEARCH'	=> $search,
 		));
 
 		$this->user->add_lang_ext('marttiphpbb/usertopiccount', 'profile');
