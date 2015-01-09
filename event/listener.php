@@ -76,23 +76,11 @@ class listener implements EventSubscriberInterface
 	static public function getSubscribedEvents()
 	{
 		return array(
-			'core.user_setup'						=> 'core_user_setup',
 			'core.memberlist_view_profile'			=> 'core_memberlist_view_profile',
 			'core.viewtopic_cache_user_data'		=> 'core_viewtopic_cache_user_data',
 			'core.viewtopic_modify_post_row'		=> 'core_viewtopic_modify_post_row',
 			'core.ucp_display_module_before'		=> 'core_ucp_display_module_before',
 		);
-	}
-
-	public function core_user_setup($event)
-	{
-		$lang_set_ext = $event['lang_set_ext'];
-
-		$lang_set_ext[] = array(
-			'ext_name' => '',
-			'lang_set' => 'common',
-		);
-		$event['lang_set_ext'] = $lang_set_ext;
 	}
 
 	public function core_memberlist_view_profile($event)

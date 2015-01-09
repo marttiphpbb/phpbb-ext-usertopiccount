@@ -30,7 +30,8 @@ if (empty($lang) || !is_array($lang))
 
 $lang = array_merge($lang, array(
 
-	'USERTOPICCOUNT_TOTAL'			=> 'Total topics',
-	'USERTOPICCOUNT_SEARCH'			=> 'Search user\'s topics',
+	'USERTOPICCOUNT_TOTAL'				=> 'Total topics',
+	'USERTOPICCOUNT_SEARCH'				=> 'Search user\'s topics',
+	'USERTOPICCOUNT_SEARCH_YOUR_TOPICS'	=> 'Show your topics',
 
 ));
