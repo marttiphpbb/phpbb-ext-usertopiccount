@@ -80,6 +80,7 @@ class listener implements EventSubscriberInterface
 			'core.memberlist_view_profile'			=> 'core_memberlist_view_profile',
 			'core.viewtopic_cache_user_data'		=> 'core_viewtopic_cache_user_data',
 			'core.viewtopic_modify_post_row'		=> 'core_viewtopic_modify_post_row',
+			'core.ucp_display_module_before'		=> 'core_ucp_display_module_before',
 		);
 	}
 
@@ -130,5 +131,24 @@ class listener implements EventSubscriberInterface
 		$post_row['U_USERTOPICCOUNT_SEARCH'] = $user_poster_data['usertopiccount_search'];
 
 		$event['post_row'] = $post_row;
+	}
+
+	public function core_ucp_display_module_before($event)
+	{
+		$id = $event['id'];
+		$mode = $event['mode'];
+
+		if (($id == 'ucp_main' && ($mode == '' || $mode == 'front')) || $id == '')
+		{
+			$user_id = $this->user->data['user_id'];
+			$search = ($this->config['load_search'] && $this->auth->acl_get('u_search')) ? append_sid($this->phpbb_root_path . 'search.' . $this->php_ext, 'author_id=' . $user_id . '&amp;sr=topics') : '';
+
+			$this->template->assign_vars(array(
+				'USERTOPICCOUNT'			=> $this->user->data['user_topic_count'],
+				'U_USERTOPICCOUNT_SEARCH'	=> $search,
+			));
+
+			$this->user->add_lang_ext('marttiphpbb/usertopiccount', 'profile');
+		}
 	}
 }
