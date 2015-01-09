@@ -1,4 +1,4 @@
-dd.profile-topics
+dd.profile-topics, div#usertopiccount-hidden
 {
 	display: none;
 }
@@ -7,3 +7,4 @@ dd.profile-topics a
 {
 	font-weight: normal;
 }
+

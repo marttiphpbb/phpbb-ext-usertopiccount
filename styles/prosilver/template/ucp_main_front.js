@@ -1,6 +1,3 @@
 ;(function($, window, document) {
-	$('dl.postprofile dd.profile-topics').each(function(){
-		$(this).insertAfter($(this).siblings('dd.profile-posts'));
-		$(this).show();
-	});
+	$('div.panel>div.inner>dl.details').append($('div#usertopiccount-hidden').contents());
 })(jQuery, window, document);
