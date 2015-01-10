@@ -9,6 +9,7 @@ namespace marttiphpbb\usertopiccount\event;
 
 use phpbb\auth\auth;
 use phpbb\config\db as config;
+use phpbb\db\driver\factory as db;
 use phpbb\controller\helper;
 use phpbb\template\twig\twig as template;
 use phpbb\user;
@@ -30,6 +31,9 @@ class listener implements EventSubscriberInterface
 	/* @var config */
 	protected $config;
 
+	/* @var db */
+	protected $db;
+	
 	/* @var helper */
 	protected $helper;
 
@@ -45,32 +49,41 @@ class listener implements EventSubscriberInterface
 	/* @var string */
 	protected $phpbb_root_path;
 
+	/* @var string */
+	protected $table_prefix;
+
 	/**
 	* @param auth				$auth
 	* @param config				$config
+	* @param db					$db
 	* @param helper				$helper
 	* @param template			$template
 	* @param user				$user
 	* @param string				$php_ext
 	* @param string				$phpbb_root_path
+	* @param string				$table_prefix
 	*/
 	public function __construct(
 			auth $auth,
 			config $config,
+			db $db,
 			helper $helper,
 			template $template,
 			user $user,
 			$php_ext,
-			$phpbb_root_path
+			$phpbb_root_path,
+			$table_prefix
 		)
 	{
 		$this->auth = $auth;
 		$this->config = $config;
+		$this->db = $db;
 		$this->helper = $helper;
 		$this->template = $template;
 		$this->user = $user;
 		$this->php_ext = $php_ext;
 		$this->phpbb_root_path = $phpbb_root_path;
+		$this->table_prefix = $table_prefix;
 	}
 
 	static public function getSubscribedEvents()
@@ -80,6 +93,7 @@ class listener implements EventSubscriberInterface
 			'core.viewtopic_cache_user_data'		=> 'core_viewtopic_cache_user_data',
 			'core.viewtopic_modify_post_row'		=> 'core_viewtopic_modify_post_row',
 			'core.ucp_display_module_before'		=> 'core_ucp_display_module_before',
+			'core.submit_post_end'					=> 'core_submit_post_end',
 		);
 	}
 
@@ -141,5 +155,24 @@ class listener implements EventSubscriberInterface
 
 			$this->user->add_lang_ext('marttiphpbb/usertopiccount', 'profile');
 		}
+	}
+
+	public function core_submit_post_end($event)
+	{
+		$mode = $event['mode'];
+		$data = $event['data'];
+		$post_visibility = $event['post_visibility'];
+
+		var_dump($mode, $post_visibility, ITEM_APPROVED, $data);
+
+		if ($mode != 'post' || $post_visibility != ITEM_APPROVED)
+		{
+			return;
+		}
+
+		$sql = 'UPDATE ' . $this->table_prefix . 'users
+			SET user_topic_count = user_topic_count + 1
+			WHERE user_id = ' . $data['poster_id'];
+		$this->db->sql_query($sql);
 	}
 }

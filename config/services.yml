@@ -4,10 +4,12 @@ services:
         arguments:
             - @auth
             - @config
+            - @dbal.conn
             - @controller.helper
             - @template
             - @user
             - %core.php_ext%
             - %core.root_path%
+            - %core.table_prefix%
         tags:
             - { name: event.listener }
