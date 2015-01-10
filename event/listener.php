@@ -125,8 +125,11 @@ class listener implements EventSubscriberInterface
 	{
 		$id = $event['id'];
 		$mode = $event['mode'];
+		$module = $event['module'];
 
-		if (($id == 'ucp_main' && ($mode == '' || $mode == 'front')) || $id == '')
+		if (($id == 'ucp_main' && ($mode == '' || $mode == 'front'))
+			|| $id == ''
+			|| (is_numeric($id) && $module->module_ary[1]['parent'] == $id))
 		{
 			$user_id = $this->user->data['user_id'];
 			$search = ($this->config['load_search'] && $this->auth->acl_get('u_search')) ? append_sid($this->phpbb_root_path . 'search.' . $this->php_ext, 'author_id=' . $user_id . '&amp;sr=topics') : '';

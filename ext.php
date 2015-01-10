@@ -39,7 +39,7 @@ class ext extends \phpbb\extension\base
 			$start = 0;
 		}
 		else if (strpos($old_state, 'user_topic_count_set_' === 0))
-		{ 
+		{
 			$step = str_replace('user_topic_count_set_', '', $old_state);
 			list($start, $last_id) = explode('_', $step);
 		}
