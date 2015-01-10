@@ -48,7 +48,7 @@ class ext extends \phpbb\extension\base
 			return parent::enable_step($old_state);
 		}
 
-		$end = ($start + 100 > $last_id) ? $last_id : $start + 100;
+		$end = ($start + 1000 > $last_id) ? $last_id : $start + 1000;
 
 		$sql = 'SELECT COUNT (t.topic_id) as user_topic_count, u.user_id
 				FROM ' . $table_prefix . 'topics t, ' . $table_prefix . 'users u
@@ -56,6 +56,7 @@ class ext extends \phpbb\extension\base
 					AND t.topic_poster = u.user_id
 					AND u.user_id >= ' . $start . '
 					AND u.user_id < ' . $end . '
+					AND u.user_id <> ' . ANONYMOUS . '
 				GROUP BY t.topic_poster
 				HAVING COUNT (t.topic_id) <> u.user_topic_count';
 		$result = $db->sql_query($sql);
