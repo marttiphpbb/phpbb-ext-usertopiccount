@@ -15,13 +15,13 @@ class v_1_0_0 extends migration
 	public function update_data()
 	{
 		return array(
-			array('custom', array(array($this, 'update_user_topic_count'))),
+//			array('custom', array(array($this, 'update_user_topic_count'))),
 		);
 	}
 
 	public function update_schema()
 	{
-		return array(
+		return array( // uncluded here for consistency; the user_topic_count column was already created in ext.php
 			'add_columns'	=> array(
 				$this->table_prefix . 'users'	=> array(
 					'user_topic_count'		=> array('UINT', 0),
