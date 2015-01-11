@@ -33,7 +33,7 @@ class listener implements EventSubscriberInterface
 
 	/* @var db */
 	protected $db;
-	
+
 	/* @var helper */
 	protected $helper;
 

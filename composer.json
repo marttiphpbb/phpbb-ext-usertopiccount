@@ -22,6 +22,11 @@
 		"display-name": "User Topic Count",
 		"soft-require": {
 			"phpbb/phpbb": ">=3.1.0-RC2,<3.2.*@dev"
+		},
+		"version-check": {
+			"host": "marttiphpbb.github.io",
+			"directory": "/version",
+			"filename": "usertopiccount.json"
 		}
 	}
 }
