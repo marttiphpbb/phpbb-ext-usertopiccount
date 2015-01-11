@@ -1,6 +1,7 @@
-dd.profile-topics, div#usertopiccount-hidden
+dd.profile-topics
 {
-	display: none;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 dd.profile-topics a
@@ -8,3 +9,7 @@ dd.profile-topics a
 	font-weight: normal;
 }
 
+div#usertopiccount-hidden
+{
+	display: none;
+}
