@@ -50,7 +50,7 @@ class ext extends \phpbb\extension\base
 
 		$end = ($start + 1000 > $last_id) ? $last_id : $start + 1000;
 
-		$sql = 'SELECT COUNT(t.topic_id) as user_topic_count, u.user_id
+		$sql = 'SELECT COUNT(t.topic_id) as count, u.user_id, u.user_topic_count
 				FROM ' . $table_prefix . 'topics t, ' . $table_prefix . 'users u
 				WHERE t.topic_visibility = ' . ITEM_APPROVED . '
 					AND t.topic_poster = u.user_id
@@ -66,7 +66,7 @@ class ext extends \phpbb\extension\base
 		foreach ($users as $user)
 		{
 			$sql = 'UPDATE ' . $table_prefix . 'users
-				SET user_topic_count = ' . $user['user_topic_count'] . '
+				SET user_topic_count = ' . $user['count'] . '
 				WHERE user_id = ' . $user['user_id'];
 			$db->sql_query($sql);
 		}
