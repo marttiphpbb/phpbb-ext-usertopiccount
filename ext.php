@@ -31,7 +31,7 @@ class ext extends \phpbb\extension\base
 				),
 			));
 
-			$sql = 'SELECT MAX (user_id) as last_id FROM ' . $table_prefix . 'users';
+			$sql = 'SELECT MAX(user_id) as last_id FROM ' . $table_prefix . 'users';
 			$result = $db->sql_query($sql);
 			$last_id = $db->sql_fetchfield('last_id');
 			$db->sql_freeresult($result);
@@ -50,7 +50,7 @@ class ext extends \phpbb\extension\base
 
 		$end = ($start + 1000 > $last_id) ? $last_id : $start + 1000;
 
-		$sql = 'SELECT COUNT (t.topic_id) as user_topic_count, u.user_id
+		$sql = 'SELECT COUNT(t.topic_id) as user_topic_count, u.user_id
 				FROM ' . $table_prefix . 'topics t, ' . $table_prefix . 'users u
 				WHERE t.topic_visibility = ' . ITEM_APPROVED . '
 					AND t.topic_poster = u.user_id
@@ -58,7 +58,7 @@ class ext extends \phpbb\extension\base
 					AND u.user_id < ' . $end . '
 					AND u.user_id <> ' . ANONYMOUS . '
 				GROUP BY t.topic_poster
-				HAVING COUNT (t.topic_id) <> u.user_topic_count';
+				HAVING COUNT(t.topic_id) <> u.user_topic_count';
 		$result = $db->sql_query($sql);
 		$users = $db->sql_fetchrowset($result);
 		$db->sql_freeresult($result);
