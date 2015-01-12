@@ -163,8 +163,6 @@ class listener implements EventSubscriberInterface
 		$data = $event['data'];
 		$post_visibility = $event['post_visibility'];
 
-		var_dump($mode, $post_visibility, ITEM_APPROVED, $data);
-
 		if ($mode != 'post' || $post_visibility != ITEM_APPROVED)
 		{
 			return;
