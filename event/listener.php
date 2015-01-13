@@ -50,7 +50,13 @@ class listener implements EventSubscriberInterface
 	protected $phpbb_root_path;
 
 	/* @var string */
-	protected $table_prefix;
+	protected $posts_table;
+
+	/* @var string */
+	protected $topics_table;
+
+	/* @var string */
+	protected $users_table;
 
 	/**
 	* @param auth				$auth
@@ -61,7 +67,9 @@ class listener implements EventSubscriberInterface
 	* @param user				$user
 	* @param string				$php_ext
 	* @param string				$phpbb_root_path
-	* @param string				$table_prefix
+	* @param string				$posts_table
+	* @param string				$topics_table
+	* @param string				$users_table
 	*/
 	public function __construct(
 			auth $auth,
@@ -72,7 +80,9 @@ class listener implements EventSubscriberInterface
 			user $user,
 			$php_ext,
 			$phpbb_root_path,
-			$table_prefix
+			$posts_table,
+			$topics_table,
+			$users_table
 		)
 	{
 		$this->auth = $auth;
@@ -83,7 +93,9 @@ class listener implements EventSubscriberInterface
 		$this->user = $user;
 		$this->php_ext = $php_ext;
 		$this->phpbb_root_path = $phpbb_root_path;
-		$this->table_prefix = $table_prefix;
+		$this->posts_table = $posts_table;
+		$this->topics_table = $topics_table;
+		$this->users_table = $users_table;
 	}
 
 	static public function getSubscribedEvents()
@@ -94,6 +106,7 @@ class listener implements EventSubscriberInterface
 			'core.viewtopic_modify_post_row'		=> 'core_viewtopic_modify_post_row',
 			'core.ucp_display_module_before'		=> 'core_ucp_display_module_before',
 			'core.submit_post_end'					=> 'core_submit_post_end',
+			'core.delete_posts_in_transaction'		=> 'core_delete_posts_in_transaction',
 		);
 	}
 
@@ -102,7 +115,7 @@ class listener implements EventSubscriberInterface
 		$member = $event['member'];
 
 		$user_id = $member['user_id'];
-		$search = ($this->config['load_search'] && $this->auth->acl_get('u_search')) ? append_sid($this->phpbb_root_path . 'search.' . $this->php_ext, 'author_id=' . $user_id . '&amp;sr=topics') : '';
+		$search = ($this->config['load_search'] && $this->auth->acl_get('u_search')) ? append_sid($this->phpbb_root_path . 'search.' . $this->php_ext, 'author_id=' . $user_id . '&amp;sr=topics&amp;sf=firstpost') : '';
 
 		$this->template->assign_vars(array(
 			'USERTOPICCOUNT'			=> $member['user_topic_count'],
@@ -119,7 +132,7 @@ class listener implements EventSubscriberInterface
 		$poster_id = $event['poster_id'];
 
 		$user_cache_data['usertopiccount'] = $row['user_topic_count'];
-		$user_cache_data['usertopiccount_search'] = ($this->config['load_search'] && $this->auth->acl_get('u_search')) ? append_sid($this->phpbb_root_path . 'search.' . $this->php_ext, 'author_id=' . $poster_id . '&amp;sr=topics') : '';
+		$user_cache_data['usertopiccount_search'] = ($this->config['load_search'] && $this->auth->acl_get('u_search')) ? append_sid($this->phpbb_root_path . 'search.' . $this->php_ext, 'author_id=' . $poster_id . '&amp;sr=topics&amp;sf=firstpost') : '';
 
 		$event['user_cache_data'] = $user_cache_data;
 	}
@@ -146,7 +159,7 @@ class listener implements EventSubscriberInterface
 			|| (is_numeric($id) && $module->module_ary[1]['parent'] == $id))
 		{
 			$user_id = $this->user->data['user_id'];
-			$search = ($this->config['load_search'] && $this->auth->acl_get('u_search')) ? append_sid($this->phpbb_root_path . 'search.' . $this->php_ext, 'author_id=' . $user_id . '&amp;sr=topics') : '';
+			$search = ($this->config['load_search'] && $this->auth->acl_get('u_search')) ? append_sid($this->phpbb_root_path . 'search.' . $this->php_ext, 'author_id=' . $user_id . '&amp;sr=topics&amp;sf=firstpost') : '';
 
 			$this->template->assign_vars(array(
 				'USERTOPICCOUNT'			=> $this->user->data['user_topic_count'],
@@ -168,9 +181,39 @@ class listener implements EventSubscriberInterface
 			return;
 		}
 
-		$sql = 'UPDATE ' . $this->table_prefix . 'users
+		$sql = 'UPDATE ' . $this->users_table . '
 			SET user_topic_count = user_topic_count + 1
 			WHERE user_id = ' . $data['poster_id'];
 		$this->db->sql_query($sql);
+	}
+
+	public function core_delete_posts_in_transaction($event)
+	{
+		$post_ids = $event['post_ids'];
+		$poster_ids = $event['poster_ids'];
+		$topic_ids = $event['topic_ids'];
+
+		if (!sizeof($topic_ids))
+		{
+			return;
+		}
+
+		// search $removed_topics; previous found $removed_topics was not injected in event.
+		$sql = 'SELECT topic_id
+			FROM ' . $this->posts_table . '
+			WHERE ' . $this->db->sql_in_set('topic_id', $topic_ids) . '
+			GROUP BY topic_id';
+		$result = $this->db->sql_query($sql);
+
+		while ($row = $this->db->sql_fetchrow($result))
+		{
+			$remove_topics[] = $row['topic_id'];
+		}
+		$this->db->sql_freeresult($result);
+
+		// Actually, those not within remove_topics should be removed.
+		$remove_topics = array_diff($topic_ids, $remove_topics);
+
+		// to continue here... 
 	}
 }

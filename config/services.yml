@@ -10,6 +10,8 @@ services:
             - @user
             - %core.php_ext%
             - %core.root_path%
-            - %core.table_prefix%
+            - %tables.posts%
+            - %tables.topics%
+            - %tables.users%
         tags:
             - { name: event.listener }
