@@ -23,7 +23,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
 * Event listener
 */
-class update_listener implements EventSubscriberInterface
+class hard_update_listener implements EventSubscriberInterface
 {
 
 	/* @var auth */
