@@ -1,9 +1,22 @@
 services:
-    marttiphpbb.usertopiccount.listener:
-        class: marttiphpbb\usertopiccount\event\listener
+    marttiphpbb.usertopiccount.show_listener:
+        class: marttiphpbb\usertopiccount\event\show_listener
         arguments:
             - @auth
             - @config
+            - @template
+            - @user
+            - %core.php_ext%
+            - %core.root_path%
+        tags:
+            - { name: event.listener }
+
+    marttiphpbb.usertopiccount.update_listener:
+        class: marttiphpbb\usertopiccount\event\update_listener
+        arguments:
+            - @auth
+            - @config
+            - @content.visibility
             - @dbal.conn
             - @controller.helper
             - @template
