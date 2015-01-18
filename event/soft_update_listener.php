@@ -108,9 +108,12 @@ class soft_update_listener implements EventSubscriberInterface
 	static public function getSubscribedEvents()
 	{
 		return array(
-
+			'core.page_footer'			=> 'core_page_footer',
 		);
 	}
 
+	public function core_page_footer($event)
+	{
 
+	}
 }
