@@ -9,6 +9,7 @@ namespace marttiphpbb\usertopiccount\event;
 
 use phpbb\auth\auth;
 use phpbb\config\db as config;
+use phpbb\db\driver\factory as db;
 use phpbb\template\twig\twig as template;
 use phpbb\user;
 
@@ -28,6 +29,9 @@ class show_listener implements EventSubscriberInterface
 	/* @var config */
 	protected $config;
 
+	/* @var db */
+	protected $db;
+
 	/* @var template */
 	protected $template;
 
@@ -43,6 +47,7 @@ class show_listener implements EventSubscriberInterface
 	/**
 	* @param auth				$auth
 	* @param config				$config
+	* @param db					$db
 	* @param template			$template
 	* @param user				$user
 	* @param string				$php_ext
@@ -51,6 +56,7 @@ class show_listener implements EventSubscriberInterface
 	public function __construct(
 			auth $auth,
 			config $config,
+			db $db,
 			template $template,
 			user $user,
 			$php_ext,
@@ -59,6 +65,7 @@ class show_listener implements EventSubscriberInterface
 	{
 		$this->auth = $auth;
 		$this->config = $config;
+		$this->db = $db;
 		$this->template = $template;
 		$this->user = $user;
 		$this->php_ext = $php_ext;
@@ -72,6 +79,7 @@ class show_listener implements EventSubscriberInterface
 			'core.viewtopic_cache_user_data'		=> 'core_viewtopic_cache_user_data',
 			'core.viewtopic_modify_post_row'		=> 'core_viewtopic_modify_post_row',
 			'core.ucp_display_module_before'		=> 'core_ucp_display_module_before',
+			'core.ucp_pm_view_messsage'				=> 'core_ucp_pm_view_messsage',
 		);
 	}
 
@@ -133,5 +141,26 @@ class show_listener implements EventSubscriberInterface
 
 			$this->user->add_lang_ext('marttiphpbb/usertopiccount', 'profile');
 		}
+	}
+
+	public function core_ucp_pm_view_messsage($event)
+	{
+		$msg_data = $event['msg_data'];
+		$message_row = $event['message_row'];
+		$user_id = $message_row['author_id'];
+
+		// $user_info was not injected in $event; We have to query again to retrieve user_topic_count
+		$sql = 'SELECT user_topic_count
+			FROM ' . USERS_TABLE . '
+			WHERE user_id = ' . (int) $user_id;
+		$result = $this->db->sql_query($sql);
+		$user_topic_count = $this->db->sql_fetchfield('user_topic_count');
+		$this->db->sql_freeresult($result);
+
+		$search = ($this->config['load_search'] && $this->auth->acl_get('u_search')) ? append_sid($this->phpbb_root_path . 'search.' . $this->php_ext, 'author_id=' . $user_id . '&amp;sr=topics&amp;sf=firstpost') : '';
+		$msg_data['USERTOPICCOUNT'] = $user_topic_count;
+		$msg_data['U_USERTOPICCOUNT_SEARCH'] = $search;
+
+		$event['msg_data'] = $msg_data;
 	}
 }

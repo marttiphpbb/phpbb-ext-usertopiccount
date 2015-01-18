@@ -4,6 +4,7 @@ services:
         arguments:
             - @auth
             - @config
+            - @dbal.conn
             - @template
             - @user
             - %core.php_ext%

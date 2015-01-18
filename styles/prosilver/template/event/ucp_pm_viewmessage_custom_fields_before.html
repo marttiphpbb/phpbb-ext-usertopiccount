@@ -1,0 +1,10 @@
+<dd class="profile-topics">
+	<strong>{L_TOPICS}{L_COLON}</strong>
+	<!-- IF U_USERTOPICCOUNT_SEARCH --><a href="{U_USERTOPICCOUNT_SEARCH}"><!-- ENDIF -->
+		{USERTOPICCOUNT}
+	<!-- IF U_USERTOPICCOUNT_SEARCH --></a><!-- ENDIF -->
+</dd>
+<!-- IF not $USERTOPICCOUNT_JAVASCRIPT_INSERTED -->
+	<!-- INCLUDEJS @marttiphpbb_usertopiccount/ucp_pm.js -->
+	<!-- $USERTOPICCOUNT_JAVASCRIPT_INSERTED = 1 -->
+<!-- ENDIF -->
