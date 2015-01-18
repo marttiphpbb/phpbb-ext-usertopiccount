@@ -1,7 +1,7 @@
-<!-- IF SCRIPT_NAME == 'ucp' and U_USERTOPICCOUNT_SEARCH -->
+<!-- IF SCRIPT_NAME == 'ucp' -->
 	<div id="usertopiccount-hidden">
 		<dt>{L_USERTOPICCOUNT_TOTAL}{L_COLON}</dt>
-			<dd>{USERTOPICCOUNT} <!-- IF S_DISPLAY_SEARCH -->| <strong><a href="{U_USERTOPICCOUNT_SEARCH}">{L_USERTOPICCOUNT_SEARCH_YOUR_TOPICS}</a></strong><!-- ENDIF -->
+			<dd>{USERTOPICCOUNT} <!-- IF U_USERTOPICCOUNT_SEARCH -->| <strong><a href="{U_USERTOPICCOUNT_SEARCH}">{L_USERTOPICCOUNT_SEARCH_YOUR_TOPICS}</a></strong><!-- ENDIF -->
 			</dd>
 	</div>
 	<!-- INCLUDEJS @marttiphpbb_usertopiccount/ucp_main_front.js -->
