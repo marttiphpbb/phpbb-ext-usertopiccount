@@ -4,3 +4,7 @@
 		{postrow.USERTOPICCOUNT}
 	<!-- IF postrow.U_USERTOPICCOUNT_SEARCH --></a><!-- ENDIF -->
 </dd>
+<!-- IF not $USERTOPICCOUNT_JAVASCRIPT_INSERTED -->
+	<!-- INCLUDEJS @marttiphpbb_usertopiccount/viewtopic.js -->
+	<!-- $USERTOPICCOUNT_JAVASCRIPT_INSERTED = 1 -->
+<!-- ENDIF -->
