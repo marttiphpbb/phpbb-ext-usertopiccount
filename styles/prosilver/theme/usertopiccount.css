@@ -3,7 +3,7 @@ dd.profile-topics a
 	font-weight: normal;
 }
 
-div#usertopiccount-hidden
+.usertopiccount-hidden
 {
 	display: none;
 }
