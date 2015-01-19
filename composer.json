@@ -5,7 +5,7 @@
 	"homepage": "https://github.com/marttiphpbb/phpbb-ext-usertopiccount",
 	"version": "0.1.0",
 	"time": "2015-01-03",
-	"license": "MIT",
+	"license": "GPL-2.0",
 	"authors": [{
 			"name": "martti",
 			"email": "info@martti.be",
