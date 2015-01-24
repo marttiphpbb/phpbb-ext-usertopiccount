@@ -157,6 +157,12 @@ class hard_update_listener implements EventSubscriberInterface
 		}
 		$this->db->sql_freeresult($result);
 
+		// no first visible post was deleted.
+		if (!sizeof($topic_change_ary))
+		{
+			return;
+		}
+
 		// Where the first visible post was deleted, the user_topic_count goes to the next visible post author
 
 		$sql_ary = array('SELECT'	=> 'p.poster_id, MIN(p.post_id), p.post_visibility',
