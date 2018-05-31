@@ -1,7 +1,7 @@
 <?php
 /**
 * phpBB Extension - marttiphpbb usertopiccount
-* @copyright (c) 2015 marttiphpbb <info@martti.be>
+* @copyright (c) 2015 - 2018 marttiphpbb <info@martti.be>
 * @license GNU General Public License, version 2 (GPL-2.0)
 */
 
@@ -91,8 +91,8 @@ class show_listener implements EventSubscriberInterface
 		$search = ($this->config['load_search'] && $this->auth->acl_get('u_search')) ? append_sid($this->phpbb_root_path . 'search.' . $this->php_ext, 'author_id=' . $user_id . '&amp;sr=topics&amp;sf=firstpost') : '';
 
 		$this->template->assign_vars([
-			'USERTOPICCOUNT'			=> $member['user_topic_count'],
-			'U_USERTOPICCOUNT_SEARCH'	=> $search,
+			'MARTTIPHPBB_USERTOPICCOUNT'			=> $member['user_topic_count'],
+			'U_MARTTIPHPBB_USERTOPICCOUNT_SEARCH'	=> $search,
 		]);
 
 		$this->user->add_lang_ext('marttiphpbb/usertopiccount', 'profile');
@@ -115,8 +115,8 @@ class show_listener implements EventSubscriberInterface
 		$user_poster_data = $event['user_poster_data'];
 		$post_row = $event['post_row'];
 
-		$post_row['USERTOPICCOUNT'] = $user_poster_data['usertopiccount'];
-		$post_row['U_USERTOPICCOUNT_SEARCH'] = $user_poster_data['usertopiccount_search'];
+		$post_row['MARTTIPHPBB_USERTOPICCOUNT'] = $user_poster_data['usertopiccount'];
+		$post_row['U_MARTTIPHPBB_USERTOPICCOUNT_SEARCH'] = $user_poster_data['usertopiccount_search'];
 
 		$event['post_row'] = $post_row;
 	}
@@ -135,8 +135,8 @@ class show_listener implements EventSubscriberInterface
 			$search = ($this->config['load_search'] && $this->auth->acl_get('u_search')) ? append_sid($this->phpbb_root_path . 'search.' . $this->php_ext, 'author_id=' . $user_id . '&amp;sr=topics&amp;sf=firstpost') : '';
 
 			$this->template->assign_vars([
-				'USERTOPICCOUNT'			=> $this->user->data['user_topic_count'],
-				'U_USERTOPICCOUNT_SEARCH'	=> $search,
+				'MARTTIPHPBB_USERTOPICCOUNT'			=> $this->user->data['user_topic_count'],
+				'U_MARTTIPHPBB_USERTOPICCOUNT_SEARCH'	=> $search,
 			]);
 
 			$this->user->add_lang_ext('marttiphpbb/usertopiccount', 'profile');
@@ -158,8 +158,8 @@ class show_listener implements EventSubscriberInterface
 		$this->db->sql_freeresult($result);
 
 		$search = ($this->config['load_search'] && $this->auth->acl_get('u_search')) ? append_sid($this->phpbb_root_path . 'search.' . $this->php_ext, 'author_id=' . $user_id . '&amp;sr=topics&amp;sf=firstpost') : '';
-		$msg_data['USERTOPICCOUNT'] = $user_topic_count;
-		$msg_data['U_USERTOPICCOUNT_SEARCH'] = $search;
+		$msg_data['MARTTIPHPBB_USERTOPICCOUNT'] = $user_topic_count;
+		$msg_data['U_MARTTIPHPBB_USERTOPICCOUNT_SEARCH'] = $search;
 
 		$event['msg_data'] = $msg_data;
 	}
