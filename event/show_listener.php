@@ -74,13 +74,13 @@ class show_listener implements EventSubscriberInterface
 
 	static public function getSubscribedEvents()
 	{
-		return array(
+		return [
 			'core.memberlist_view_profile'			=> 'core_memberlist_view_profile',
 			'core.viewtopic_cache_user_data'		=> 'core_viewtopic_cache_user_data',
 			'core.viewtopic_modify_post_row'		=> 'core_viewtopic_modify_post_row',
 			'core.ucp_display_module_before'		=> 'core_ucp_display_module_before',
 			'core.ucp_pm_view_messsage'				=> 'core_ucp_pm_view_messsage',
-		);
+		];
 	}
 
 	public function core_memberlist_view_profile($event)
@@ -90,10 +90,10 @@ class show_listener implements EventSubscriberInterface
 		$user_id = $member['user_id'];
 		$search = ($this->config['load_search'] && $this->auth->acl_get('u_search')) ? append_sid($this->phpbb_root_path . 'search.' . $this->php_ext, 'author_id=' . $user_id . '&amp;sr=topics&amp;sf=firstpost') : '';
 
-		$this->template->assign_vars(array(
+		$this->template->assign_vars([
 			'USERTOPICCOUNT'			=> $member['user_topic_count'],
 			'U_USERTOPICCOUNT_SEARCH'	=> $search,
-		));
+		]);
 
 		$this->user->add_lang_ext('marttiphpbb/usertopiccount', 'profile');
 	}
@@ -134,10 +134,10 @@ class show_listener implements EventSubscriberInterface
 			$user_id = $this->user->data['user_id'];
 			$search = ($this->config['load_search'] && $this->auth->acl_get('u_search')) ? append_sid($this->phpbb_root_path . 'search.' . $this->php_ext, 'author_id=' . $user_id . '&amp;sr=topics&amp;sf=firstpost') : '';
 
-			$this->template->assign_vars(array(
+			$this->template->assign_vars([
 				'USERTOPICCOUNT'			=> $this->user->data['user_topic_count'],
 				'U_USERTOPICCOUNT_SEARCH'	=> $search,
-			));
+			]);
 
 			$this->user->add_lang_ext('marttiphpbb/usertopiccount', 'profile');
 		}

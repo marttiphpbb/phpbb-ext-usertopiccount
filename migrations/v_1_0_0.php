@@ -13,23 +13,23 @@ class v_1_0_0 extends migration
 {
 	public function update_schema()
 	{
-		return array( // uncluded here for consistency; the user_topic_count column was already created in ext.php
-			'add_columns'	=> array(
-				$this->table_prefix . 'users'	=> array(
-					'user_topic_count'		=> array('UINT', 0),
-				),
-			),
-		);
+		return [ // uncluded here for consistency; the user_topic_count column was already created in ext.php
+			'add_columns'	=> [
+				$this->table_prefix . 'users'	=> [
+					'user_topic_count'		=> ['UINT', 0],
+				],
+			],
+		];
 	}
 
 	public function revert_schema()
 	{
-		return array(
-			'drop_columns'	=> array(
-				$this->table_prefix . 'users'	=> array(
+		return [
+			'drop_columns'	=> [
+				$this->table_prefix . 'users'	=> [
 					'user_topic_count',
-				),
-			),
-		);
+				],
+			],
+		];
 	}
 }

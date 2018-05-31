@@ -107,10 +107,10 @@ class hard_update_listener implements EventSubscriberInterface
 
 	static public function getSubscribedEvents()
 	{
-		return array(
+		return [
 			'core.submit_post_end'					=> 'core_submit_post_end',
 			'core.delete_posts_after'				=> 'core_delete_posts_after',
-		);
+		];
 	}
 
 	public function core_submit_post_end($event)
@@ -136,18 +136,18 @@ class hard_update_listener implements EventSubscriberInterface
 		$post_ids = $event['post_ids'];
 		$poster_ids = $event['poster_ids'];
 
-		$add_ary = $adds = $topic_change_ary = array();
+		$add_ary = $adds = $topic_change_ary = [];
 
 		// Find where the first visible post was deleted, to decrease user_topic_count
 
-		$sql_ary = array(
+		$sql_ary = [
 			'SELECT'	=> 't.topic_poster, t.topic_id',
-			'FROM'		=> array(
+			'FROM'		=> [
 				$this->topics_table	=> 't',
-			),
+			],
 			'WHERE'	=> $this->db->sql_in_set('t.topic_first_post_id', $post_ids) . '
-				AND ' . $this->content_visibility->get_global_visibility_sql('topic', array(), 't.'),
-		);
+				AND ' . $this->content_visibility->get_global_visibility_sql('topic', [], 't.'),
+		];
 		$sql = $this->db->sql_build_query('SELECT', $sql_ary);
 		$result = $this->db->sql_query($sql);
 		while ($row = $this->db->sql_fetchrow($result))
@@ -165,13 +165,13 @@ class hard_update_listener implements EventSubscriberInterface
 
 		// Where the first visible post was deleted, the user_topic_count goes to the next visible post author
 
-		$sql_ary = array('SELECT'	=> 'p.poster_id, MIN(p.post_id), p.post_visibility',
-			'FROM'	=> array(
+		$sql_ary = ['SELECT'	=> 'p.poster_id, MIN(p.post_id), p.post_visibility',
+			'FROM'	=> [
 				$this->posts_table	=> 'p',
-			),
+			],
 			'WHERE'	=> $this->db->sql_in_set('p.topic_id', $topic_change_ary),
 			'GROUP BY'	=> 'p.topic_id',
-		);
+		];
 		$sql = $this->db->sql_build_query('SELECT', $sql_ary);
 		$result = $this->db->sql_query($sql);
 		while ($row = $this->db->sql_fetchrow($result))

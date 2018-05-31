@@ -23,13 +23,13 @@ class ext extends \phpbb\extension\base
 			$db_tools = $this->container->get('dbal.tools');
 
 			// the user_topic_count column has to be present
-			$db_tools->perform_schema_changes(array(
-				'add_columns'	=> array(
-					$table_prefix . 'users'	=> array(
-						'user_topic_count'		=> array('UINT', 0),
-					),
-				),
-			));
+			$db_tools->perform_schema_changes([
+				'add_columns'	=> [
+					$table_prefix . 'users'	=> [
+						'user_topic_count'		=> ['UINT', 0],
+					],
+				],
+			]);
 
 			$sql = 'SELECT MAX(user_id) as last_id FROM ' . $table_prefix . 'users';
 			$result = $db->sql_query($sql);
