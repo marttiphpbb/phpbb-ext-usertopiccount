@@ -1,10 +1,14 @@
 <dd class="profile-topics usertopiccount-hidden">
-	<strong>{L_TOPICS}{L_COLON}</strong>
-	<!-- IF postrow.U_MARTTIPHPBB_USERTOPICCOUNT_SEARCH --><a href="{postrow.U_MARTTIPHPBB_USERTOPICCOUNT_SEARCH}"><!-- ENDIF -->
-		{postrow.MARTTIPHPBB_USERTOPICCOUNT}
-	<!-- IF postrow.U_MARTTIPHPBB_USERTOPICCOUNT_SEARCH --></a><!-- ENDIF -->
+	<strong>{{- lang('TOPICS') -}}{{- lang('COLON') -}}</strong>
+	{%- if postrow.U_MARTTIPHPBB_USERTOPICCOUNT_SEARCH -%}
+		<a href="{{- postrow.U_MARTTIPHPBB_USERTOPICCOUNT_SEARCH -}}">
+			{{- postrow.MARTTIPHPBB_USERTOPICCOUNT -}}
+		</a>
+	{%- else -%}
+		{{- postrow.MARTTIPHPBB_USERTOPICCOUNT -}}
+	{%- endif -%}
 </dd>
-<!-- IF not $MARTTIPHPBB_USERTOPICCOUNT_JAVASCRIPT_INSERTED -->
-	<!-- INCLUDEJS @marttiphpbb_usertopiccount/viewtopic.js -->
-	<!-- $MARTTIPHPBB_USERTOPICCOUNT_JAVASCRIPT_INSERTED = 1 -->
-<!-- ENDIF -->
+{%- if not $MARTTIPHPBB_USERTOPICCOUNT_JAVASCRIPT_INSERTED -%}
+	{%- INCLUDEJS '@marttiphpbb_usertopiccount/ucp_pm.js' -%}
+	{%- $MARTTIPHPBB_USERTOPICCOUNT_JAVASCRIPT_INSERTED = 1 -%}
+{%- endif -%}

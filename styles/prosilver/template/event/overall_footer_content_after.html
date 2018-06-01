@@ -1,8 +1,11 @@
-<!-- IF SCRIPT_NAME == 'ucp' -->
+{%- if SCRIPT_NAME == 'ucp' -%}
 	<div class="usertopiccount-hidden">
-		<dt>{L_MARTTIPHPBB_USERTOPICCOUNT_TOTAL}{L_COLON}</dt>
-			<dd>{MARTTIPHPBB_USERTOPICCOUNT} <!-- IF U_MARTTIPHPBB_USERTOPICCOUNT_SEARCH -->| <strong><a href="{U_MARTTIPHPBB_USERTOPICCOUNT_SEARCH}">{L_MARTTIPHPBB_USERTOPICCOUNT_SEARCH_YOUR_TOPICS}</a></strong><!-- ENDIF -->
+		<dt>{{- lang('MARTTIPHPBB_USERTOPICCOUNT_TOTAL' -}}{{ lang('COLON') -}}</dt>
+			<dd>{{- MARTTIPHPBB_USERTOPICCOUNT -}}
+				{%- if U_MARTTIPHPBB_USERTOPICCOUNT_SEARCH %} | <strong><a href="{{- U_MARTTIPHPBB_USERTOPICCOUNT_SEARCH -}}">
+					{{- lang('MARTTIPHPBB_USERTOPICCOUNT_SEARCH_YOUR_TOPICS') -}}
+				</a></strong>{%- endif -%}
 			</dd>
 	</div>
-	<!-- INCLUDEJS @marttiphpbb_usertopiccount/ucp_main_front.js -->
-<!-- ENDIF -->
+	{%- INCLUDEJS '@marttiphpbb_usertopiccount/ucp_main_front.js' -%}
+{%- endif -%}
