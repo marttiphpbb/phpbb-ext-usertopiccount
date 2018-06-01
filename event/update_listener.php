@@ -7,6 +7,7 @@
 
 namespace marttiphpbb\usertopiccount\event;
 
+use phpbb\event\data as event;
 use marttiphpbb\usertopiccount\service\update;
 use phpbb\config\db as config;
 use phpbb\db\driver\factory as db;
@@ -67,7 +68,7 @@ class update_listener implements EventSubscriberInterface
 		];
 	}
 
-	public function core_submit_post_end($event)
+	public function core_submit_post_end(event $event)
 	{
 		$mode = $event['mode'];
 		$data = $event['data'];
@@ -84,7 +85,7 @@ class update_listener implements EventSubscriberInterface
 		$this->db->sql_query($sql);
 	}
 
-	public function core_delete_posts_after($event)
+	public function core_delete_posts_after(event $event)
 	{
 		$topic_ids = $event['topic_ids'];
 		$post_ids = $event['post_ids'];

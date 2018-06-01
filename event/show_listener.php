@@ -7,6 +7,7 @@
 
 namespace marttiphpbb\usertopiccount\event;
 
+use phpbb\event\data as event;
 use phpbb\auth\auth;
 use phpbb\config\db as config;
 use phpbb\template\twig\twig as template;
@@ -83,7 +84,7 @@ class show_listener implements EventSubscriberInterface
 		];
 	}
 
-	public function core_memberlist_view_profile($event)
+	public function core_memberlist_view_profile(event $event)
 	{
 		$member = $event['member'];
 		$user_id = $member['user_id'];
@@ -96,7 +97,7 @@ class show_listener implements EventSubscriberInterface
 		$this->language->add_lang('profile', 'marttiphpbb/usertopiccount');
 	}
 
-	public function core_viewtopic_cache_user_data($event)
+	public function core_viewtopic_cache_user_data(event $event)
 	{
 		$row = $event['row'];
 		$user_cache_data = $event['user_cache_data'];
@@ -108,7 +109,7 @@ class show_listener implements EventSubscriberInterface
 		$event['user_cache_data'] = $user_cache_data;
 	}
 
-	public function core_viewtopic_modify_post_row($event)
+	public function core_viewtopic_modify_post_row(event $event)
 	{
 		$user_poster_data = $event['user_poster_data'];
 		$post_row = $event['post_row'];
