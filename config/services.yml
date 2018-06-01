@@ -1,49 +1,32 @@
 services:
+    marttiphpbb.usertopiccount.update:
+        class: marttiphpbb\usertopiccount\service\update
+        arguments:
+            - @dbal.conn
+            - %tables.topics%
+            - %tables.users%
+
     marttiphpbb.usertopiccount.show_listener:
         class: marttiphpbb\usertopiccount\event\show_listener
         arguments:
-            - @auth
-            - @config
-            - @dbal.conn
-            - @template
-            - @user
-            - %core.php_ext%
-            - %core.root_path%
+            - '@auth'
+            - '@config'
+            - '@dbal.conn'
+            - '@template'
+            - '@user'
+            - '%core.php_ext%'
+            - '%core.root_path%'
         tags:
             - { name: event.listener }
 
-    marttiphpbb.usertopiccount.hard_update_listener:
-        class: marttiphpbb\usertopiccount\event\hard_update_listener
+    marttiphpbb.usertopiccount.update_listener:
+        class: marttiphpbb\usertopiccount\event\update_listener
         arguments:
-            - @auth
-            - @config
-            - @content.visibility
-            - @dbal.conn
-            - @controller.helper
-            - @template
-            - @user
-            - %core.php_ext%
-            - %core.root_path%
-            - %tables.posts%
-            - %tables.topics%
-            - %tables.users%
-        tags:
-            - { name: event.listener }
-
-    marttiphpbb.usertopiccount.soft_update_listener:
-        class: marttiphpbb\usertopiccount\event\soft_update_listener
-        arguments:
-            - @auth
-            - @config
-            - @content.visibility
-            - @dbal.conn
-            - @controller.helper
-            - @template
-            - @user
-            - %core.php_ext%
-            - %core.root_path%
-            - %tables.posts%
-            - %tables.topics%
-            - %tables.users%
+            - '@marttiphpbb.usertopiccount.update'
+            - '@dbal.conn'
+            - '@user'
+            - '%tables.posts%'
+            - '%tables.topics%'
+            - '%tables.users%'
         tags:
             - { name: event.listener }

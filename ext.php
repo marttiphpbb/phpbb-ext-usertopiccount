@@ -7,6 +7,8 @@
 
 namespace marttiphpbb\usertopiccount;
 
+use marttiphpbb\usertopiccount\service\update;
+
 class ext extends \phpbb\extension\base
 {
 	/**
@@ -25,7 +27,8 @@ class ext extends \phpbb\extension\base
 	public function enable_step($old_state)
 	{
 		$db = $this->container->get('dbal.conn');
-		$table_prefix = $this->container->getParameter('core.table_prefix');
+		$users_table = $this->container->getParameter('tables.users');
+		$topics_table = $this->container->getParameter('tables.topics');
 
 		if (!$old_state)
 		{
@@ -34,18 +37,19 @@ class ext extends \phpbb\extension\base
 			// the user_topic_count column has to be present
 			$db_tools->perform_schema_changes([
 				'add_columns'	=> [
-					$table_prefix . 'users'	=> [
+					$users_table	=> [
 						'user_topic_count'		=> ['UINT', 0],
 					],
 				],
 			]);
 
-			$sql = 'SELECT MAX(user_id) as last_id FROM ' . $table_prefix . 'users';
+			$sql = 'select max(user_id) as last_id 
+				from ' . $users_table;
 			$result = $db->sql_query($sql);
 			$last_id = $db->sql_fetchfield('last_id');
 			$db->sql_freeresult($result);
 
-			$start = 0;
+			$start = 1;
 		}
 		else if (strpos($old_state, 'user_topic_count_set_' === 0))
 		{
@@ -59,30 +63,13 @@ class ext extends \phpbb\extension\base
 
 		$end = ($start + 1000) > $last_id ? $last_id : $start + 1000;
 
-		$sql = 'SELECT COUNT(t.topic_id) as count, u.user_id, u.user_topic_count
-				FROM ' . $table_prefix . 'topics t, ' . $table_prefix . 'users u
-				WHERE t.topic_visibility = ' . ITEM_APPROVED . '
-					AND t.topic_poster = u.user_id
-					AND u.user_id >= ' . $start . '
-					AND u.user_id < ' . $end . '
-					AND u.user_id <> ' . ANONYMOUS . '
-				GROUP BY t.topic_poster
-				HAVING COUNT(t.topic_id) <> u.user_topic_count';
-		$result = $db->sql_query($sql);
-		$users = $db->sql_fetchrowset($result);
-		$db->sql_freeresult($result);
+		$update = new update($db, $topics_table, $users_table);
 
-		foreach ($users as $user)
-		{
-			$sql = 'UPDATE ' . $table_prefix . 'users
-				SET user_topic_count = ' . $user['count'] . '
-				WHERE user_id = ' . $user['user_id'];
-			$db->sql_query($sql);
-		}
+		$update->for_user_range($start, $end);
 
 		if ($end >= $last_id)
 		{
-			return 'user_topic_count';
+			return 'user_topic_count_updated';
 		}
 
 		return 'user_topic_count_set_' . $end . '_' . $last_id;
