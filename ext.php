@@ -10,8 +10,17 @@ namespace marttiphpbb\usertopiccount;
 class ext extends \phpbb\extension\base
 {
 	/**
-	* @param mixed $old_state State returned by previous call of this method
-	* @return mixed Returns false after last step, otherwise temporary state
+	 * phpBB 3.2.x and PHP 7+
+	 */
+	public function is_enableable()
+	{
+		$config = $this->container->get('config');
+		return phpbb_version_compare($config['version'], '3.2', '>=') && version_compare(PHP_VERSION, '7', '>=');
+	}
+
+	/**
+	* @param mixed $old_state
+	* @return mixed false after last step, otherwise temporary state
 	*/
 	public function enable_step($old_state)
 	{
@@ -48,7 +57,7 @@ class ext extends \phpbb\extension\base
 			return parent::enable_step($old_state);
 		}
 
-		$end = ($start + 1000 > $last_id) ? $last_id : $start + 1000;
+		$end = ($start + 1000) > $last_id ? $last_id : $start + 1000;
 
 		$sql = 'SELECT COUNT(t.topic_id) as count, u.user_id, u.user_topic_count
 				FROM ' . $table_prefix . 'topics t, ' . $table_prefix . 'users u
