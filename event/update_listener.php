@@ -71,22 +71,26 @@ class update_listener implements EventSubscriberInterface
 	public function core_submit_post_end(event $event)
 	{
 		$mode = $event['mode'];
-		$data = $event['data'];
-		$post_visibility = $event['post_visibility'];
 
-		if ($mode != 'post' || $post_visibility != ITEM_APPROVED)
+		if ($mode != 'post')
 		{
 			return;
 		}
 
-		$sql = 'UPDATE ' . $this->users_table . '
-			SET user_topic_count = user_topic_count + 1
-			WHERE user_id = ' . $data['poster_id'];
-		$this->db->sql_query($sql);
+		$data = $event['data'];
+	
+		$this->update->for_user($data['poster_id']);
 	}
 
 	public function core_delete_posts_after(event $event)
 	{
+		$post_mode = $event['post_mode'];
+
+		if (!in_array($post_mode, ['delete_topic', 'delete_first_post']))
+		{
+			return;
+		}
+
 		$topic_ids = $event['topic_ids'];
 		$post_ids = $event['post_ids'];
 		$poster_ids = $event['poster_ids'];

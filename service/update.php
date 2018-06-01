@@ -41,7 +41,7 @@ class update
 		$sql = 'update ' . $this->users_table . '
 			set user_topic_count = ' . $topic_count . '
 			where user_id = ' . $user_id;
-		$db->sql_query($sql);
+		$this->db->sql_query($sql);
 	}
 
 	private function for_sql_where(string $sql_where)
@@ -58,7 +58,7 @@ class update
 		$rows = $this->db->sql_fetchrowset($result);
 		$this->db->sql_freeresult($result);
 
-		foreach($rows as $data)
+		foreach($rows as $row)
 		{
 			$this->update($row['user_id'], $row['topic_count']);
 		}

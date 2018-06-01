@@ -91,7 +91,7 @@ class show_listener implements EventSubscriberInterface
 
 		$this->template->assign_vars([
 			'MARTTIPHPBB_USERTOPICCOUNT'			=> $member['user_topic_count'],
-			'U_MARTTIPHPBB_USERTOPICCOUNT_SEARCH'	=> $this->get_u_search($user_id),
+			'U_MARTTIPHPBB_USERTOPICCOUNT_SEARCH'	=> $member['user_topic_count'] ? $this->get_u_search($user_id) : '',
 		]);
 
 		$this->language->add_lang('profile', 'marttiphpbb/usertopiccount');
@@ -104,7 +104,7 @@ class show_listener implements EventSubscriberInterface
 		$poster_id = $event['poster_id'];
 
 		$user_cache_data['usertopiccount'] = $row['user_topic_count'];
-		$user_cache_data['usertopiccount_search'] = $this->get_u_search($poster_id);
+		$user_cache_data['usertopiccount_search'] = $row['user_topic_count'] ? $this->get_u_search($poster_id) : '';
 
 		$event['user_cache_data'] = $user_cache_data;
 	}
@@ -131,10 +131,11 @@ class show_listener implements EventSubscriberInterface
 			|| (is_numeric($id) && $module->module_ary[1]['parent'] == $id))
 		{
 			$user_id = $this->user->data['user_id'];
+			$topic_count = $this->user->data['user_topic_count'];
 	
 			$this->template->assign_vars([
-				'MARTTIPHPBB_USERTOPICCOUNT'			=> $this->user->data['user_topic_count'],
-				'U_MARTTIPHPBB_USERTOPICCOUNT_SEARCH'	=> $this->get_u_search($user_id),
+				'MARTTIPHPBB_USERTOPICCOUNT'			=> $topic_count,
+				'U_MARTTIPHPBB_USERTOPICCOUNT_SEARCH'	=> $topic_count ? $this->get_u_search($user_id) : '',
 			]);
 
 			$this->language->add_lang('profile', 'marttiphpbb/usertopiccount');
@@ -149,7 +150,7 @@ class show_listener implements EventSubscriberInterface
 		$user_info = $event['user_info'];
 
 		$msg_data['MARTTIPHPBB_USERTOPICCOUNT'] = $user_info['user_topic_count'];
-		$msg_data['U_MARTTIPHPBB_USERTOPICCOUNT_SEARCH'] = $this->get_u_search($author_id);
+		$msg_data['U_MARTTIPHPBB_USERTOPICCOUNT_SEARCH'] = $user_info['user_topic_count'] ? $this->get_u_search($author_id) : '';
 
 		$event['msg_data'] = $msg_data;
 	}

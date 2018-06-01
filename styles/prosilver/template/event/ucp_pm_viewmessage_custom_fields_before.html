@@ -1,5 +1,5 @@
 <dd class="profile-topics usertopiccount-hidden">
-	<strong>{{- lang('TOPICS') -}}{{- lang('COLON') -}}</strong>
+	<strong>{{- lang('TOPICS') -}}{{- lang('COLON') -}}</strong>&nbsp;
 	{%- if U_MARTTIPHPBB_USERTOPICCOUNT_SEARCH -%}
 		<a href="{{- U_MARTTIPHPBB_USERTOPICCOUNT_SEARCH -}}">
 				{{- MARTTIPHPBB_USERTOPICCOUNT -}}
@@ -8,7 +8,7 @@
 		{{- MARTTIPHPBB_USERTOPICCOUNT -}}
 	{%- endif -%}
 </dd>
-{%- if not $MARTTIPHPBB_USERTOPICCOUNT_JAVASCRIPT_INSERTED -%}
+{%- if not MARTTIPHPBB_USERTOPICCOUNT_JAVASCRIPT_INSERTED -%}
 	{%- INCLUDEJS '@marttiphpbb_usertopiccount/ucp_pm.js' -%}
-	{%- $MARTTIPHPBB_USERTOPICCOUNT_JAVASCRIPT_INSERTED = 1 -%}
+	{%- set MARTTIPHPBB_USERTOPICCOUNT_JAVASCRIPT_INSERTED = 1 -%}
 {%- endif -%}
