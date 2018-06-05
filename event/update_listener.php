@@ -79,9 +79,9 @@ class update_listener implements EventSubscriberInterface
 		$topic_ids[] = $topic_id;
 		$poster_ary = [];
 
-		$sql = 'select t.topic_poster 
-			from ' . $this->topics_table . ' t 
-			where ' . $this->db->sql_in_set('t.topic_id', $topic_ids);
+		$sql = 'select topic_poster 
+			from ' . $this->topics_table . '
+			where ' . $this->db->sql_in_set('topic_id', $topic_ids);
 
 		$result = $this->db->sql_query($sql);
 
@@ -139,9 +139,9 @@ class update_listener implements EventSubscriberInterface
 
 		if ($next_post_id)
 		{
-			$sql = 'select p.poster_id
+			$sql = 'select poster_id
 				from ' . $this->posts_table . '
-				where p.post_id = ' . $next_post_id;
+				where post_id = ' . $next_post_id;
 				
 			$result = $this->db->sql_query($sql);
 			$next_poster_id = $this->db->sql_fetchfield('poster_id');
@@ -162,10 +162,10 @@ class update_listener implements EventSubscriberInterface
 
 		// This is before the topics table is synced
 		// We check if first posts in approved topics where removed
-		$sql = 'select t.topic_poster, t.topic_id
-			from ' . $this->topics_table . ' t 
-			where ' . $this->db->sql_in_set('t.topic_first_post_id', $post_ids) . '
-				and t.topic_visibility = ' . ITEM_APPROVED;
+		$sql = 'select topic_poster, topic_id
+			from ' . $this->topics_table . '
+			where ' . $this->db->sql_in_set('topic_first_post_id', $post_ids) . '
+				and topic_visibility = ' . ITEM_APPROVED;
 
 		$result = $this->db->sql_query($sql);
 
@@ -186,12 +186,12 @@ class update_listener implements EventSubscriberInterface
 
 		$topic_change_ary = array_keys($topic_change_ary);
 
-		$sql = 'select p.poster_id
-			from ' . $this->posts_table	. ' p
-			where ' . $this->db->sql_in_set('p.topic_id', $topic_change_ary) . '
-				and p.post_visibility = ' . ITEM_APPROVED . '
-			group by p.topic_id
-			having min(p.post_id) = p.post_id';
+		$sql = 'select poster_id
+			from ' . $this->posts_table	. '
+			where ' . $this->db->sql_in_set('topic_id', $topic_change_ary) . '
+				and post_visibility = ' . ITEM_APPROVED . '
+			group by topic_id
+			having min(post_id) = post_id';
 		
 		$result = $this->db->sql_query($sql);
 

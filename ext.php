@@ -27,8 +27,9 @@ class ext extends \phpbb\extension\base
 	public function enable_step($old_state)
 	{
 		$db = $this->container->get('dbal.conn');
-		$users_table = $this->container->getParameter('tables.users');
+		$posts_table = $this->container->getParameter('tables.posts');
 		$topics_table = $this->container->getParameter('tables.topics');
+		$users_table = $this->container->getParameter('tables.users');		
 
 		if (!$old_state)
 		{
@@ -63,15 +64,18 @@ class ext extends \phpbb\extension\base
 
 		$end = ($start + 1000) > $last_id ? $last_id : $start + 1000;
 
-		$update = new update($db, $topics_table, $users_table);
+		$update = new update($db, $posts_table, $topics_table, $users_table);
 
 		$update->for_user_range($start, $end);
 
 		if ($end >= $last_id)
 		{
+			error_log('user_topic_count_updated');
 			return 'user_topic_count_updated';
 		}
 
-		return 'user_topic_count_set_' . $end . '_' . $last_id;
+		$step = 'user_topic_count_set_' . $end . '_' . $last_id;
+		error_log($step);
+		return $step;
 	}
 }
