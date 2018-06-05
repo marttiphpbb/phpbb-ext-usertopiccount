@@ -15,23 +15,29 @@ class update
 	protected $db;
 
 	/** @var string */
+	protected $posts_table;
+
+	/** @var string */
 	protected $topics_table;
 
 	/** @var string */
 	protected $users_table;
 
 	/**
-	* @param db					$db
-	* @param string				$topics_table
-	* @param string				$users_table
+	* @param db			$db
+	* @param string 	$post_table		
+	* @param string		$topics_table
+	* @param string		$users_table		
 	*/
 	public function __construct(
-			db $db,
-			string $topics_table,
-			string $users_table
-		)
+		db $db,
+		string $posts_table,	
+		string $topics_table,
+		string $users_table
+	)
 	{
 		$this->db = $db;
+		$this->posts_table = $posts_table;
 		$this->topics_table = $topics_table;
 		$this->users_table = $users_table;
 	}
@@ -44,7 +50,43 @@ class update
 		$this->db->sql_query($sql);
 	}
 
-	private function for_sql_where(string $sql_where)
+	public function for_unsynced_user_ary(array $user_ids)
+	{
+		if (!count($user_ids))
+		{
+			return;
+		}
+
+		$count_ary = [];
+
+		$sql = 'select p.poster_id
+			from ' . $this->posts_table	. ' p
+			where ' . $this->db->sql_in_set('p.poster_id', $user_ids) . '
+				and p.post_visibility = ' . ITEM_APPROVED . '
+			group by p.topic_id
+			having min(p.post_id) = p.post_id';
+
+		$result = $this->db->sql_query($sql);
+	
+		while($poster_id = $this->db->sql_fetchfield('poster_id'))
+		{
+			if (!isset($count_ary[$poster_id]))
+			{
+				$count_ary[$poster_id] = 0;
+			}
+
+			$count_ary[$poster_id]++;
+		}
+
+		$this->db->sql_freeresult($result);
+
+		foreach ($user_ids as $user_id)
+		{
+			$this->update($user_id, $count_ary[$user_id] ?? 0);
+		}
+	}
+
+	public function for_sql_where(string $sql_where)
 	{
 		$sql = 'select count(t.topic_id) as topic_count, u.user_id
 			from ' . $this->topics_table . ' t, ' . $this->users_table . ' u

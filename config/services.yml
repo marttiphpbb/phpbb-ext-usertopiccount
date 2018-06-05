@@ -2,9 +2,10 @@ services:
     marttiphpbb.usertopiccount.update:
         class: marttiphpbb\usertopiccount\service\update
         arguments:
-            - @dbal.conn
-            - %tables.topics%
-            - %tables.users%
+            - '@dbal.conn'
+            - '%tables.posts%'            
+            - '%tables.topics%'
+            - '%tables.users%'
 
     marttiphpbb.usertopiccount.show_listener:
         class: marttiphpbb\usertopiccount\event\show_listener
@@ -24,7 +25,6 @@ services:
         arguments:
             - '@marttiphpbb.usertopiccount.update'
             - '@dbal.conn'
-            - '@user'
             - '%tables.posts%'
             - '%tables.topics%'
             - '%tables.users%'

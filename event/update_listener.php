@@ -9,9 +9,7 @@ namespace marttiphpbb\usertopiccount\event;
 
 use phpbb\event\data as event;
 use marttiphpbb\usertopiccount\service\update;
-use phpbb\config\db as config;
 use phpbb\db\driver\factory as db;
-use phpbb\user;
 
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -22,9 +20,6 @@ class update_listener implements EventSubscriberInterface
 
 	/* @var db */
 	protected $db;
-
-	/* @var user */
-	protected $user;
 
 	/* @var string */
 	protected $posts_table;
@@ -46,7 +41,6 @@ class update_listener implements EventSubscriberInterface
 	public function __construct(
 			update $update,
 			db $db,
-			user $user,
 			$posts_table,
 			$topics_table,
 			$users_table
@@ -54,7 +48,6 @@ class update_listener implements EventSubscriberInterface
 	{
 		$this->update = $update;
 		$this->db = $db;
-		$this->user = $user;
 		$this->posts_table = $posts_table;
 		$this->topics_table = $topics_table;
 		$this->users_table = $users_table;
@@ -63,11 +56,46 @@ class update_listener implements EventSubscriberInterface
 	static public function getSubscribedEvents()
 	{
 		return [
-			'core.submit_post_end'					=> 'core_submit_post_end',
-			'core.delete_posts_after'				=> 'core_delete_posts_after',
+			'core.move_posts_sync_after'	=> 'core_move_posts_sync_after',
+			'core.submit_post_end'			=> 'core_submit_post_end',
+			'core.delete_post_after'		=> 'core_delete_post_after',
+			'core.delete_posts_after'		=> 'core_delete_posts_after',
+			'core.prune_delete_before'		=> 'core_prune_delete_before',
+			'core.approve_posts_after'		=> 'core_approve_posts_after',
+			'core.approve_topics_after'		=> 'core_approve_topics_after',
+			'core.disapprove_posts_after'	=> 'core_disapprove_posts_after',
+			'core.set_post_visibility_after'
+				=> 'core_set_post_visibility_after',		
 		];
 	}
 
+	// functions_admin.php // test
+	public function core_move_posts_sync_after(event $event)
+	{
+		$topic_id = $event['topic_id'];
+		$topic_ids = $event['topic_ids'];
+		$topic_ids[] = $topic_id;
+		$poster_ary = [];
+
+		$sql = 'select t.topic_poster 
+			from ' . $this->topics_table . ' t 
+			where ' . $this->db->sql_in_set('t.topic_id', $topic_ids);
+
+		$result = $this->db->sql_query($sql);
+
+		while ($row = $this->db->sql_fetchrow($result))
+		{
+			$poster_ary[$row['topic_poster']] = true;
+		}
+		
+		$this->db->sql_freeresult($result);
+
+		$this->update->for_user_ary(array_keys($poster_ary));
+
+		error_log('core.move_posts_sync_after');
+	}
+
+	// functions_posting.php // ok
 	public function core_submit_post_end(event $event)
 	{
 		$mode = $event['mode'];
@@ -80,9 +108,11 @@ class update_listener implements EventSubscriberInterface
 		$data = $event['data'];
 	
 		$this->update->for_user($data['poster_id']);
+		error_log('core.submit_post_end');
 	}
 
-	public function core_delete_posts_after(event $event)
+	// functions_posting.php // test
+	public function core_delete_post_after(event $event)
 	{
 		$post_mode = $event['post_mode'];
 
@@ -91,77 +121,166 @@ class update_listener implements EventSubscriberInterface
 			return;
 		}
 
-		$topic_ids = $event['topic_ids'];
+		$data = $event['data'];
+		$next_post_id = $event['next_post_id'];
+
+		error_log('post_mode');
+		error_log($post_mode);
+		error_log('data');
+		error_log(json_encode($data));
+		error_log('next_post_id');
+		error_log($next_post_id);
+
+		$user_ids = [
+			$data['poster_id'] => true,
+		];
+
+		if ($next_post_id)
+		{
+			$sql = 'select p.poster_id
+				from ' . $this->posts_table . '
+				where p.post_id = ' . $next_post_id;
+				
+			$result = $this->db->sql_query($sql);
+			$next_poster_id = $this->db->sql_fetchfield('poster_id');
+			$this->db->sql_freeresult($result);
+			$user_ids[$next_poster_id] = true; 
+		}
+
+		$this->update->for_user_ary(array_keys($user_ids));
+
+		error_log('user_ids: ' . json_encode(array_keys($user_ids)));
+		error_log('core.delete_post_after');
+	}
+
+	// functions_admin.php // test
+	public function core_delete_posts_after(event $event)
+	{
 		$post_ids = $event['post_ids'];
-		$poster_ids = $event['poster_ids'];
 
-		$add_ary = $adds = $topic_change_ary = [];
+		// This is before the topics table is synced
+		// We check if first posts in approved topics where removed
+		$sql = 'select t.topic_poster, t.topic_id
+			from ' . $this->topics_table . ' t 
+			where ' . $this->db->sql_in_set('t.topic_first_post_id', $post_ids) . '
+				and t.topic_visibility = ' . ITEM_APPROVED;
 
-		// Find where the first visible post was deleted, to decrease user_topic_count
-
-		$sql_ary = [
-			'SELECT'	=> 't.topic_poster, t.topic_id',
-			'FROM'		=> [
-				$this->topics_table	=> 't',
-			],
-			'WHERE'	=> $this->db->sql_in_set('t.topic_first_post_id', $post_ids) . '
-				AND ' . $this->content_visibility->get_global_visibility_sql('topic', [], 't.'),
-		];
-		$sql = $this->db->sql_build_query('SELECT', $sql_ary);
 		$result = $this->db->sql_query($sql);
+	
 		while ($row = $this->db->sql_fetchrow($result))
 		{
-			$add_ary[$row['topic_poster']] = (isset($add_ary[$row['topic_poster']])) ? $add_ary[$row['topic_poster']] - 1 : -1;
-			$topic_change_ary[] = $row['topic_poster'];
+			$topic_change_ary[$row['topic_id']] = true;
+			$poster_change_ary[$row['topic_poster']] = true;
 		}
+
 		$this->db->sql_freeresult($result);
 
-		// no first visible post was deleted.
-		if (!sizeof($topic_change_ary))
-		{
-			return;
-		}
+		$topic_change_ary = array_keys($t, p.topic_idopic_change_ary);
 
-		// Where the first visible post was deleted, the user_topic_count goes to the next visible post author
-
-		$sql_ary = ['SELECT'	=> 'p.poster_id, MIN(p.post_id), p.post_visibility',
-			'FROM'	=> [
-				$this->posts_table	=> 'p',
-			],
-			'WHERE'	=> $this->db->sql_in_set('p.topic_id', $topic_change_ary),
-			'GROUP BY'	=> 'p.topic_id',
-		];
-		$sql = $this->db->sql_build_query('SELECT', $sql_ary);
+		$sql = 'select p.poster_id
+			from ' . $this->posts_table	. ' p
+			where ' . $this->db->sql_in_set('p.topic_id', $topic_ids) . '
+				and p.post_visibility = ' . ITEM_APPROVED . '
+			group by p.topic_id
+			having min(p.post_id) = p.post_id';
+		
 		$result = $this->db->sql_query($sql);
-		while ($row = $this->db->sql_fetchrow($result))
+
+		while ($poster_id = $this->db->sql_fetchfield('poster_id'))
 		{
-			if ($row['post_visibility'] == ITEM_APPROVED)
-			{
-				$add_ary[$row['poster_id']] = (isset($add_ary[$row['poster_id']])) ? $add_ary[$row['poster_id']] + 1 : 1;
-			}
+			$poster_change_ary[$poster_id] = true;
 		}
+
 		$this->db->sql_freeresult($result);
 
-		// update user_topic_count
+		$poster_change_ary = array_keys($poster_change_ary);
 
-		foreach ($add_ary as $user_id => $add)
+		$this->update->for_unsynced_user_ary($poster_change_ary);
+
+		error_log('core.delete_posts_after');
+	}
+
+	// functions_admin.php // handle in "delete_posts()"
+	public function core_prune_delete_before(event $event)
+	{
+		error_log('core.prune_delete_before');
+	}
+
+	// mcp/mcp_queue.php  // test
+	public function core_approve_posts_after(event $event)
+	{
+		$post_info = $event['post_info'];
+		$topic_info = $event['topic_info'];
+
+		$topics = $posters = $posts = [];
+
+		foreach ($topic_info as $topic_id => $topic_data)
 		{
-			if (!$add)
+			if ($topic_data['first_post'])
 			{
-				continue;
+				foreach ($topic_data['posts'] as $post_id)
+				{
+					$posts[$post_id] = true;	
+				}
+
+				$topics[$topic_id] = true;
 			}
-
-			$sql = 'UPDATE ' . $this->users_table . '
-				SET user_topic_count = 0
-				WHERE user_id = ' . $user_id . '
-				AND user_topic_count + ' . $add . ' < 0';
-			$this->db->sql_query($sql);
-
-			$sql = 'UPDATE ' . $this->users_table . '
-				SET user_topic_count = user_topic_count + ' . $add . '
-				WHERE user_id = ' . $user_id . '
-				AND user_topic_count + ' . $add . ' >= 0';
-			$this->db->sql_query($sql);
 		}
+
+		foreach ($post_info as $post_id => $post_data)
+		{
+			$posters[$post_info[$post_id]['poster_id']] = true;
+		}
+
+		$sql = 'select poster_id
+			from ' . $this->posts_table . '
+			where ' . $this->db->sql_in_ary('topic_id', array_keys($topics)) . '
+				and post_visibility = ' . ITEM_APPROVED . '
+				and ' . $this->db->sql_not_in_ary('post_id', array_keys($posts)) . '
+			group by topic_id
+			having min(post_id) = post_id';
+
+		$result = $this->db->sql_query($sql);
+
+		while($poster_id = $this->db->sql_fetchfield('poster_id'))
+		{
+			$posters[$poster_id] = true;
+		}
+
+		$this->db->sql_freeresult($result);
+
+		$this->update->for_user_ary(array_keys($posters));	
+		error_log('core.approve_posts_after');
+	}
+
+	// mcp/mcp_queue.php //test
+	public function core_approve_topics_after(event $event)
+	{
+		$topic_info = $event['topic_info'];
+
+		$posters = [];
+
+		foreach ($topic_info as $topic_id => $topic_data)
+		{
+			$posters[$topic_data['topic_poster']] = true;
+		}
+
+		$this->update->for_user_ary(array_keys($posters));
+
+		error_log('topic_info: ');
+		error_log(json_encode($topic_info));
+		error_log('core.approve_topics_after');
+	}
+
+	// mcp/mcp_queue.php // nothing?
+	public function core_disapprove_posts_after(event $event)
+	{
+		error_log('disapprove posts after');
+	}
+
+	// phpbb/content_visibility.php // ?check todo
+	public function core_set_post_visibility_after(event $event)
+	{
+		error_log('core.set_post_visibility_after');
 	}
 }
