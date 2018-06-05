@@ -65,7 +65,9 @@ class update_listener implements EventSubscriberInterface
 			'core.approve_topics_after'		=> 'core_approve_topics_after',
 			'core.disapprove_posts_after'	=> 'core_disapprove_posts_after',
 			'core.set_post_visibility_after'
-				=> 'core_set_post_visibility_after',		
+				=> 'core_set_post_visibility_after',
+			'core.set_topic_visibility_after'
+				=> 'core_set_topic_visibility_after',		
 		];
 	}
 
@@ -166,6 +168,8 @@ class update_listener implements EventSubscriberInterface
 				and t.topic_visibility = ' . ITEM_APPROVED;
 
 		$result = $this->db->sql_query($sql);
+
+		$topic_change_ary = $poster_change_ary = [];
 	
 		while ($row = $this->db->sql_fetchrow($result))
 		{
@@ -175,11 +179,16 @@ class update_listener implements EventSubscriberInterface
 
 		$this->db->sql_freeresult($result);
 
-		$topic_change_ary = array_keys($t, p.topic_idopic_change_ary);
+		if (!count($topic_change_ary))
+		{
+			return;
+		}
+
+		$topic_change_ary = array_keys($topic_change_ary);
 
 		$sql = 'select p.poster_id
 			from ' . $this->posts_table	. ' p
-			where ' . $this->db->sql_in_set('p.topic_id', $topic_ids) . '
+			where ' . $this->db->sql_in_set('p.topic_id', $topic_change_ary) . '
 				and p.post_visibility = ' . ITEM_APPROVED . '
 			group by p.topic_id
 			having min(p.post_id) = p.post_id';
@@ -234,9 +243,9 @@ class update_listener implements EventSubscriberInterface
 
 		$sql = 'select poster_id
 			from ' . $this->posts_table . '
-			where ' . $this->db->sql_in_ary('topic_id', array_keys($topics)) . '
+			where ' . $this->db->sql_in_set('topic_id', array_keys($topics)) . '
 				and post_visibility = ' . ITEM_APPROVED . '
-				and ' . $this->db->sql_not_in_ary('post_id', array_keys($posts)) . '
+				and ' . $this->db->sql_in_set('post_id', array_keys($posts), true) . '
 			group by topic_id
 			having min(post_id) = post_id';
 
@@ -278,9 +287,19 @@ class update_listener implements EventSubscriberInterface
 		error_log('disapprove posts after');
 	}
 
-	// phpbb/content_visibility.php // ?check todo
+	// phpbb/content_visibility.php //test
 	public function core_set_post_visibility_after(event $event)
 	{
+		$topic_id = $event['topic_id'];
+		$this->update->for_topic($topic_id);
 		error_log('core.set_post_visibility_after');
+	}
+
+	// phpbb/content_visibility.php //test
+	public function core_set_topic_visibility_after(event $event)
+	{
+		$topic_id = $event['topic_id'];
+		$this->update->for_topic($topic_id);
+		error_log('core.set_topic_visibility_after');
 	}
 }

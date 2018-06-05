@@ -121,4 +121,21 @@ class update
 		$this->for_sql_where('u.user_id >= ' . $start_user_id . ' 
 			and u.user_id <= ' . $end_user_id);
 	}
+
+	// approve, dissapprove, delete
+	public function for_topic(int $topic_id)
+	{
+		$sql = 'select topic_poster
+			from ' . $this->topics_table . '
+			where topic_id = ' . $topic_id;
+
+		$result = $this->db->sql_query($sql);
+		$topic_poster = $this->db->sql_fetchfield('topic_poster');
+		$this->db->sql_freeresult($result);
+
+		if (isset($poster_id))
+		{
+			$this->for_user($poster_id);
+		}
+	}
 }
