@@ -11,6 +11,13 @@ use phpbb\db\migration\migration;
 
 class v_1_0_0 extends migration
 {
+	static public function depends_on()
+	{
+		return [
+			'\phpbb\db\migration\data\v32x\v322',
+		];
+	}
+
 	public function update_schema()
 	{
 		return [ // uncluded here for consistency; the user_topic_count column was already created in ext.php
