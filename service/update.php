@@ -11,27 +11,14 @@ use phpbb\db\driver\factory as db;
 
 class update
 {
-	/** @var db */
 	protected $db;
-
-	/** @var string */
 	protected $posts_table;
-
-	/** @var string */
 	protected $topics_table;
-
-	/** @var string */
 	protected $users_table;
 
-	/**
-	* @param db			$db
-	* @param string 	$post_table		
-	* @param string		$topics_table
-	* @param string		$users_table		
-	*/
 	public function __construct(
 		db $db,
-		string $posts_table,	
+		string $posts_table,
 		string $topics_table,
 		string $users_table
 	)
@@ -67,7 +54,7 @@ class update
 			having min(p.post_id) = p.post_id';
 
 		$result = $this->db->sql_query($sql);
-	
+
 		while($poster_id = $this->db->sql_fetchfield('poster_id'))
 		{
 			if (!isset($count_ary[$poster_id]))
@@ -118,7 +105,7 @@ class update
 
 	public function for_user_range(int $start_user_id, int $end_user_id)
 	{
-		$this->for_sql_where('u.user_id >= ' . $start_user_id . ' 
+		$this->for_sql_where('u.user_id >= ' . $start_user_id . '
 			and u.user_id <= ' . $end_user_id);
 	}
 

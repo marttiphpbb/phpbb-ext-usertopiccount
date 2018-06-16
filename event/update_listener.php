@@ -15,35 +15,18 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class update_listener implements EventSubscriberInterface
 {
-	/** @var update */
 	protected $update;
-
-	/* @var db */
 	protected $db;
-
-	/* @var string */
 	protected $posts_table;
-
-	/* @var string */
 	protected $topics_table;
-
-	/* @var string */
 	protected $users_table;
 
-	/**
-	 * @param update			$update
-	* @param db					$db
-	* @param user				$user
-	* @param string				$posts_table
-	* @param string				$topics_table
-	* @param string				$users_table
-	*/
 	public function __construct(
 			update $update,
 			db $db,
-			$posts_table,
-			$topics_table,
-			$users_table
+			string $posts_table,
+			string $topics_table,
+			string $users_table
 	)
 	{
 		$this->update = $update;
@@ -67,7 +50,7 @@ class update_listener implements EventSubscriberInterface
 			'core.set_post_visibility_after'
 				=> 'core_set_post_visibility_after',
 			'core.set_topic_visibility_after'
-				=> 'core_set_topic_visibility_after',		
+				=> 'core_set_topic_visibility_after',
 		];
 	}
 
@@ -79,7 +62,7 @@ class update_listener implements EventSubscriberInterface
 		$topic_ids[] = $topic_id;
 		$poster_ary = [];
 
-		$sql = 'select topic_poster 
+		$sql = 'select topic_poster
 			from ' . $this->topics_table . '
 			where ' . $this->db->sql_in_set('topic_id', $topic_ids);
 
@@ -89,7 +72,7 @@ class update_listener implements EventSubscriberInterface
 		{
 			$poster_ary[$row['topic_poster']] = true;
 		}
-		
+
 		$this->db->sql_freeresult($result);
 
 		$this->update->for_user_ary(array_keys($poster_ary));
@@ -108,7 +91,7 @@ class update_listener implements EventSubscriberInterface
 		}
 
 		$data = $event['data'];
-	
+
 		$this->update->for_user($data['poster_id']);
 		error_log('core.submit_post_end');
 	}
@@ -142,11 +125,11 @@ class update_listener implements EventSubscriberInterface
 			$sql = 'select poster_id
 				from ' . $this->posts_table . '
 				where post_id = ' . $next_post_id;
-				
+
 			$result = $this->db->sql_query($sql);
 			$next_poster_id = $this->db->sql_fetchfield('poster_id');
 			$this->db->sql_freeresult($result);
-			$user_ids[$next_poster_id] = true; 
+			$user_ids[$next_poster_id] = true;
 		}
 
 		$this->update->for_user_ary(array_keys($user_ids));
@@ -170,7 +153,7 @@ class update_listener implements EventSubscriberInterface
 		$result = $this->db->sql_query($sql);
 
 		$topic_change_ary = $poster_change_ary = [];
-	
+
 		while ($row = $this->db->sql_fetchrow($result))
 		{
 			$topic_change_ary[$row['topic_id']] = true;
@@ -192,7 +175,7 @@ class update_listener implements EventSubscriberInterface
 				and post_visibility = ' . ITEM_APPROVED . '
 			group by topic_id
 			having min(post_id) = post_id';
-		
+
 		$result = $this->db->sql_query($sql);
 
 		while ($poster_id = $this->db->sql_fetchfield('poster_id'))
@@ -229,7 +212,7 @@ class update_listener implements EventSubscriberInterface
 			{
 				foreach ($topic_data['posts'] as $post_id)
 				{
-					$posts[$post_id] = true;	
+					$posts[$post_id] = true;
 				}
 
 				$topics[$topic_id] = true;
@@ -258,7 +241,7 @@ class update_listener implements EventSubscriberInterface
 
 		$this->db->sql_freeresult($result);
 
-		$this->update->for_user_ary(array_keys($posters));	
+		$this->update->for_user_ary(array_keys($posters));
 		error_log('core.approve_posts_after');
 	}
 

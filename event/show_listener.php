@@ -13,47 +13,18 @@ use phpbb\config\db as config;
 use phpbb\template\twig\twig as template;
 use phpbb\user;
 use phpbb\language\language;
-
-/**
-* @ignore
-*/
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-/**
-* Event listener
-*/
 class show_listener implements EventSubscriberInterface
 {
-	/* @var auth */
 	protected $auth;
-
-	/* @var config */
 	protected $config;
-
-	/* @var template */
 	protected $template;
-
-	/* @var user */
 	protected $user;
-
-	/** @var language */
 	protected $language;
-
-	/* @var string */
 	protected $php_ext;
-
-	/* @var string */
 	protected $phpbb_root_path;
 
-	/**
-	* @param auth				$auth
-	* @param config				$config
-	* @param template			$template
-	* @param user				$user
-	* @param language 			$language
-	* @param string				$php_ext
-	* @param string				$phpbb_root_path
-	*/
 	public function __construct(
 			auth $auth,
 			config $config,
@@ -76,11 +47,11 @@ class show_listener implements EventSubscriberInterface
 	static public function getSubscribedEvents()
 	{
 		return [
-			'core.memberlist_view_profile'			=> 'core_memberlist_view_profile',
-			'core.viewtopic_cache_user_data'		=> 'core_viewtopic_cache_user_data',
-			'core.viewtopic_modify_post_row'		=> 'core_viewtopic_modify_post_row',
-			'core.ucp_display_module_before'		=> 'core_ucp_display_module_before',
-			'core.ucp_pm_view_message'				=> 'core_ucp_pm_view_message',
+			'core.memberlist_view_profile'		=> 'core_memberlist_view_profile',
+			'core.viewtopic_cache_user_data'	=> 'core_viewtopic_cache_user_data',
+			'core.viewtopic_modify_post_row'	=> 'core_viewtopic_modify_post_row',
+			'core.ucp_display_module_before'	=> 'core_ucp_display_module_before',
+			'core.ucp_pm_view_message'			=> 'core_ucp_pm_view_message',
 		];
 	}
 
@@ -132,7 +103,7 @@ class show_listener implements EventSubscriberInterface
 		{
 			$user_id = $this->user->data['user_id'];
 			$topic_count = $this->user->data['user_topic_count'];
-	
+
 			$this->template->assign_vars([
 				'MARTTIPHPBB_USERTOPICCOUNT'			=> $topic_count,
 				'U_MARTTIPHPBB_USERTOPICCOUNT_SEARCH'	=> $topic_count ? $this->get_u_search($user_id) : '',
@@ -155,7 +126,7 @@ class show_listener implements EventSubscriberInterface
 		$event['msg_data'] = $msg_data;
 	}
 
-	private function get_u_search(int $user_id):string 
+	private function get_u_search(int $user_id):string
 	{
 		if ($this->config['load_search'] && $this->auth->acl_get('u_search'))
 		{
