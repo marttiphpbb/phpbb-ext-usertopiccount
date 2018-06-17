@@ -109,6 +109,18 @@ class update
 			and u.user_id <= ' . $end_user_id);
 	}
 
+	public function has_next_user_id(int $end_user_id):bool
+	{
+		$sql = 'select min(user_id)
+			from ' . $this->users_table . '
+			where user_id > ' . $end_user_id;
+		$result = $this->db->sql_query($sql);
+		$user_id = $this->db->sql_fetchfield('user_id');
+		$this->db->sql_freeresult($result);
+
+		return $user_id ? true : false;
+	}
+
 	// approve, dissapprove, delete
 	public function for_topic(int $topic_id)
 	{
