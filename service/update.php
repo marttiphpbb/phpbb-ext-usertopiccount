@@ -75,7 +75,7 @@ class update
 
 	public function for_sql_where(string $sql_where)
 	{
-		$sql = 'select count(t.topic_id) as topic_count, u.user_id
+		$sql = 'select count(t.topic_id) as topic_count, u.user_id, u.user_topic_count
 			from ' . $this->topics_table . ' t, ' . $this->users_table . ' u
 			where t.topic_visibility = ' . ITEM_APPROVED . '
 				and t.topic_poster = u.user_id
