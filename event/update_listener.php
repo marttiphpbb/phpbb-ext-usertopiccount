@@ -144,7 +144,7 @@ class update_listener implements EventSubscriberInterface
 		$post_ids = $event['post_ids'];
 
 		// This is before the topics table is synced
-		// We check if first posts in approved topics where removed
+		// We check if first posts in approved topics were removed
 		$sql = 'select topic_poster, topic_id
 			from ' . $this->topics_table . '
 			where ' . $this->db->sql_in_set('topic_first_post_id', $post_ids) . '
@@ -169,12 +169,12 @@ class update_listener implements EventSubscriberInterface
 
 		$topic_change_ary = array_keys($topic_change_ary);
 
-		$sql = 'select poster_id
+		// Who is the poster of the next approved post? (Must be updated too)
+		$sql = 'select min(post_id), poster_id
 			from ' . $this->posts_table	. '
 			where ' . $this->db->sql_in_set('topic_id', $topic_change_ary) . '
 				and post_visibility = ' . ITEM_APPROVED . '
-			group by topic_id
-			having min(post_id) = post_id';
+			group by topic_id';
 
 		$result = $this->db->sql_query($sql);
 
@@ -224,13 +224,13 @@ class update_listener implements EventSubscriberInterface
 			$posters[$post_info[$post_id]['poster_id']] = true;
 		}
 
-		$sql = 'select poster_id
-			from ' . $this->posts_table . '
-			where ' . $this->db->sql_in_set('topic_id', array_keys($topics)) . '
-				and post_visibility = ' . ITEM_APPROVED . '
-				and ' . $this->db->sql_in_set('post_id', array_keys($posts), true) . '
-			group by topic_id
-			having min(post_id) = post_id';
+		$sql = 'select ps.poster_id from (
+				select min(p.post_id), p.poster_id, p.topic_id, p.post_id
+				from ' . $this->posts_table . ' p
+				where ' . $this->db->sql_in_set('p.topic_id', array_keys($topics)) . '
+					and p.post_visibility = ' . ITEM_APPROVED . '
+				group by p.topic_id) ps
+			where ' . $this->db->sql_in_set('post_id', array_keys($posts), true);
 
 		$result = $this->db->sql_query($sql);
 

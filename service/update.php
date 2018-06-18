@@ -46,23 +46,19 @@ class update
 
 		$count_ary = [];
 
-		$sql = 'select p.poster_id
-			from ' . $this->posts_table	. ' p
+		$sql = 'select count(ps.*) as topic_count, ps.poster_id
+			from (select min(p.post_id), p.poster_id, p.topic_id
+				from ' . $this->posts_table . ' p
+				where p.post_visibility = ' . ITEM_APPROVED . '
+				group by p.topic_id) ps
 			where ' . $this->db->sql_in_set('p.poster_id', $user_ids) . '
-				and p.post_visibility = ' . ITEM_APPROVED . '
-			group by p.topic_id
-			having min(p.post_id) = p.post_id';
+			group by ps.poster_id';
 
 		$result = $this->db->sql_query($sql);
 
-		while($poster_id = $this->db->sql_fetchfield('poster_id'))
+		while($row = $this->db->sql_fetchrow($result))
 		{
-			if (!isset($count_ary[$poster_id]))
-			{
-				$count_ary[$poster_id] = 0;
-			}
-
-			$count_ary[$poster_id]++;
+			$count_ary[$row['poster_id']] = $row['topic_count'];
 		}
 
 		$this->db->sql_freeresult($result);
