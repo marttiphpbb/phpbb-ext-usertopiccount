@@ -37,38 +37,6 @@ class update
 		$this->db->sql_query($sql);
 	}
 
-	public function for_unsynced_user_ary(array $user_ids)
-	{
-		if (!count($user_ids))
-		{
-			return;
-		}
-
-		$count_ary = [];
-
-		$sql = 'select count(ps.*) as topic_count, ps.poster_id
-			from (select min(p.post_id), p.poster_id, p.topic_id
-				from ' . $this->posts_table . ' p
-				where p.post_visibility = ' . ITEM_APPROVED . '
-				group by p.topic_id) ps
-			where ' . $this->db->sql_in_set('p.poster_id', $user_ids) . '
-			group by ps.poster_id';
-
-		$result = $this->db->sql_query($sql);
-
-		while($row = $this->db->sql_fetchrow($result))
-		{
-			$count_ary[$row['poster_id']] = $row['topic_count'];
-		}
-
-		$this->db->sql_freeresult($result);
-
-		foreach ($user_ids as $user_id)
-		{
-			$this->update($user_id, $count_ary[$user_id] ?? 0);
-		}
-	}
-
 	public function for_sql_where(string $sql_where)
 	{
 		$sql = 'select count(t.topic_id) as topic_count, u.user_id, u.user_topic_count

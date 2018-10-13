@@ -43,6 +43,8 @@ class update_listener implements EventSubscriberInterface
 			'core.submit_post_end'			=> 'core_submit_post_end',
 			'core.delete_post_after'		=> 'core_delete_post_after',
 			'core.delete_posts_after'		=> 'core_delete_posts_after',
+			'core.delete_topics_before_query'
+				=> 'core_delete_topics_before_query',
 			'core.prune_delete_before'		=> 'core_prune_delete_before',
 			'core.approve_posts_after'		=> 'core_approve_posts_after',
 			'core.approve_topics_after'		=> 'core_approve_topics_after',
@@ -60,22 +62,9 @@ class update_listener implements EventSubscriberInterface
 		$topic_id = $event['topic_id'];
 		$topic_ids = $event['topic_ids'];
 		$topic_ids[] = $topic_id;
-		$poster_ary = [];
 
-		$sql = 'select topic_poster
-			from ' . $this->topics_table . '
-			where ' . $this->db->sql_in_set('topic_id', $topic_ids);
-
-		$result = $this->db->sql_query($sql);
-
-		while ($row = $this->db->sql_fetchrow($result))
-		{
-			$poster_ary[$row['topic_poster']] = true;
-		}
-
-		$this->db->sql_freeresult($result);
-
-		$this->update->for_user_ary(array_keys($poster_ary));
+		$topic_poster_ary = $this->get_topic_poster_ary($topic_ids);
+		$this->update->for_user_ary($topic_poster_ary);
 
 		error_log('core.move_posts_sync_after');
 	}
@@ -141,55 +130,13 @@ class update_listener implements EventSubscriberInterface
 	// functions_admin.php // test
 	public function core_delete_posts_after(event $event)
 	{
-		$post_ids = $event['post_ids'];
-
-		// This is before the topics table is synced
-		// We check if first posts in approved topics were removed
-		$sql = 'select topic_poster, topic_id
-			from ' . $this->topics_table . '
-			where ' . $this->db->sql_in_set('topic_first_post_id', $post_ids) . '
-				and topic_visibility = ' . ITEM_APPROVED;
-
-		$result = $this->db->sql_query($sql);
-
-		$topic_change_ary = $poster_change_ary = [];
-
-		while ($row = $this->db->sql_fetchrow($result))
-		{
-			$topic_change_ary[$row['topic_id']] = true;
-			$poster_change_ary[$row['topic_poster']] = true;
-		}
-
-		$this->db->sql_freeresult($result);
-
-		if (!count($topic_change_ary))
-		{
-			return;
-		}
-
-		$topic_change_ary = array_keys($topic_change_ary);
-
-		// Who is the poster of the next approved post? (Must be updated too)
-		$sql = 'select min(post_id), poster_id
-			from ' . $this->posts_table	. '
-			where ' . $this->db->sql_in_set('topic_id', $topic_change_ary) . '
-				and post_visibility = ' . ITEM_APPROVED . '
-			group by topic_id';
-
-		$result = $this->db->sql_query($sql);
-
-		while ($poster_id = $this->db->sql_fetchfield('poster_id'))
-		{
-			$poster_change_ary[$poster_id] = true;
-		}
-
-		$this->db->sql_freeresult($result);
-
-		$poster_change_ary = array_keys($poster_change_ary);
-
-		$this->update->for_unsynced_user_ary($poster_change_ary);
-
 		error_log('core.delete_posts_after');
+	}
+
+	// functions_admin.php
+	public function core_delete_topics_before_query(event $event)
+	{
+		error_log('core.delete_topics_before_query');
 	}
 
 	// functions_admin.php // handle in "delete_posts()"
@@ -284,5 +231,23 @@ class update_listener implements EventSubscriberInterface
 		$topic_id = $event['topic_id'];
 		$this->update->for_topic($topic_id);
 		error_log('core.set_topic_visibility_after');
+	}
+
+	private function get_topic_poster_ary(array $topic_ids):array
+	{
+		$poster_ary = [];
+
+		$sql = 'select topic_poster
+			from ' . $this->topics_table . '
+			where ' . $this->db->sql_in_set('topic_id', $topic_ids);
+
+		$result = $this->db->sql_query($sql);
+
+		while ($row = $this->db->sql_fetchrow($result))
+		{
+			$poster_ary[$row['topic_poster']] = true;
+		}
+
+		return array_keys($poster_ary);
 	}
 }
