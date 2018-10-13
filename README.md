@@ -2,7 +2,7 @@
 
 ## Requirements
 
-* PHP 7+
+* PHP 7.1+
 * phpBB 3.2.2+
 
 ## Features
