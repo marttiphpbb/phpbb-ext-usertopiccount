@@ -20,6 +20,7 @@ class update_listener implements EventSubscriberInterface
 	protected $posts_table;
 	protected $topics_table;
 	protected $users_table;
+	protected $users_to_recalc = [];
 
 	public function __construct(
 			update $update,
@@ -39,16 +40,26 @@ class update_listener implements EventSubscriberInterface
 	static public function getSubscribedEvents()
 	{
 		return [
-			'core.move_posts_sync_after'	=> 'core_move_posts_sync_after',
-			'core.submit_post_end'			=> 'core_submit_post_end',
-			'core.delete_post_after'		=> 'core_delete_post_after',
-			'core.delete_posts_after'		=> 'core_delete_posts_after',
+			'core.move_posts_sync_after'
+				=> 'core_move_posts_sync_after',
+			'core.submit_post_end'
+				=> 'core_submit_post_end',
+			'core.delete_post_after'
+				=> 'core_delete_post_after',
+			'core.delete_posts_after'
+				=> 'core_delete_posts_after',
 			'core.delete_topics_before_query'
 				=> 'core_delete_topics_before_query',
-			'core.prune_delete_before'		=> 'core_prune_delete_before',
-			'core.approve_posts_after'		=> 'core_approve_posts_after',
-			'core.approve_topics_after'		=> 'core_approve_topics_after',
-			'core.disapprove_posts_after'	=> 'core_disapprove_posts_after',
+			'core.delete_topics_after_query'
+				=> 'core_delete_topics_after_query',
+			'core.prune_delete_before'
+				=> 'core_prune_delete_before',
+			'core.approve_posts_after'
+				=> 'core_approve_posts_after',
+			'core.approve_topics_after'
+				=> 'core_approve_topics_after',
+			'core.disapprove_posts_after'
+				=> 'core_disapprove_posts_after',
 			'core.set_post_visibility_after'
 				=> 'core_set_post_visibility_after',
 			'core.set_topic_visibility_after'
@@ -137,6 +148,18 @@ class update_listener implements EventSubscriberInterface
 	public function core_delete_topics_before_query(event $event)
 	{
 		error_log('core.delete_topics_before_query');
+
+		$topic_ids = $event['topic_ids'];
+
+		// catch users for recalculation in after query.
+		$this->users_to_recalc = $this->get_topic_poster_ary($topic_ids);
+	}
+
+	// functions_admin.php
+	public function core_delete_topics_after_query(event $event)
+	{
+		error_log('core.delete_topics_after_query');
+		$this->update->for_user_ary($this->users_to_recalc);
 	}
 
 	// functions_admin.php // handle in "delete_posts()"
