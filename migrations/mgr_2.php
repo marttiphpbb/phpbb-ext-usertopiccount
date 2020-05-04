@@ -1,7 +1,7 @@
 <?php
 /**
 * phpBB Extension - marttiphpbb usertopiccount
-* @copyright (c) 2015 - 2018 marttiphpbb <info@martti.be>
+* @copyright (c) 2015 - 2020 marttiphpbb <info@martti.be>
 * @license GNU General Public License, version 2 (GPL-2.0)
 */
 
@@ -12,14 +12,14 @@ use marttiphpbb\usertopiccount\service\update;
 
 class mgr_2 extends migration
 {
-	static public function depends_on()
+	static public function depends_on():array
 	{
 		return [
 			'\marttiphpbb\usertopiccount\migrations\mgr_1',
 		];
 	}
 
-	public function update_data()
+	public function update_data():array
 	{
 		return [[
 			'custom', [
@@ -28,7 +28,7 @@ class mgr_2 extends migration
 		]];
 	}
 
-	public function update_user_topic_count($previous_end)
+	public function update_user_topic_count($previous_end):array
 	{
 		$users_table = $this->table_prefix . 'users';
 		$posts_table = $this->table_prefix . 'posts';

@@ -1,7 +1,7 @@
 <?php
 /**
 * phpBB Extension - marttiphpbb usertopiccount
-* @copyright (c) 2015 - 2018 marttiphpbb <info@martti.be>
+* @copyright (c) 2015 - 2020 marttiphpbb <info@martti.be>
 * @license GNU General Public License, version 2 (GPL-2.0)
 */
 
@@ -11,14 +11,14 @@ use phpbb\db\migration\migration;
 
 class mgr_1 extends migration
 {
-	static public function depends_on()
+	static public function depends_on():array
 	{
 		return [
 			'\phpbb\db\migration\data\v32x\v322',
 		];
 	}
 
-	public function update_schema()
+	public function update_schema():array
 	{
 		return [
 			'add_columns'	=> [
@@ -29,7 +29,7 @@ class mgr_1 extends migration
 		];
 	}
 
-	public function revert_schema()
+	public function revert_schema():array
 	{
 		return [
 			'drop_columns'	=> [

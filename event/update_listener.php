@@ -1,7 +1,7 @@
 <?php
 /**
 * phpBB Extension - marttiphpbb usertopiccount
-* @copyright (c) 2015 - 2018 marttiphpbb <info@martti.be>
+* @copyright (c) 2015 - 2020 marttiphpbb <info@martti.be>
 * @license GNU General Public License, version 2 (GPL-2.0)
 */
 
@@ -37,7 +37,7 @@ class update_listener implements EventSubscriberInterface
 		$this->users_table = $users_table;
 	}
 
-	static public function getSubscribedEvents()
+	static public function getSubscribedEvents():array
 	{
 		return [
 			'core.move_posts_sync_after'
@@ -68,7 +68,7 @@ class update_listener implements EventSubscriberInterface
 	}
 
 	// functions_admin.php // test
-	public function core_move_posts_sync_after(event $event)
+	public function core_move_posts_sync_after(event $event):void
 	{
 		$topic_id = $event['topic_id'];
 		$topic_ids = $event['topic_ids'];
@@ -76,12 +76,10 @@ class update_listener implements EventSubscriberInterface
 
 		$topic_poster_ary = $this->get_topic_poster_ary($topic_ids);
 		$this->update->for_user_ary($topic_poster_ary);
-
-		error_log('core.move_posts_sync_after');
 	}
 
 	// functions_posting.php // ok
-	public function core_submit_post_end(event $event)
+	public function core_submit_post_end(event $event):void
 	{
 		$mode = $event['mode'];
 
@@ -93,11 +91,10 @@ class update_listener implements EventSubscriberInterface
 		$data = $event['data'];
 
 		$this->update->for_user($data['poster_id']);
-		error_log('core.submit_post_end');
 	}
 
 	// functions_posting.php // test
-	public function core_delete_post_after(event $event)
+	public function core_delete_post_after(event $event):void
 	{
 		$post_mode = $event['post_mode'];
 
@@ -108,13 +105,6 @@ class update_listener implements EventSubscriberInterface
 
 		$data = $event['data'];
 		$next_post_id = $event['next_post_id'];
-
-		error_log('post_mode');
-		error_log($post_mode);
-		error_log('data');
-		error_log(json_encode($data));
-		error_log('next_post_id');
-		error_log($next_post_id);
 
 		$user_ids = [
 			$data['poster_id'] => true,
@@ -133,22 +123,17 @@ class update_listener implements EventSubscriberInterface
 		}
 
 		$this->update->for_user_ary(array_keys($user_ids));
-
-		error_log('user_ids: ' . json_encode(array_keys($user_ids)));
-		error_log('core.delete_post_after');
 	}
 
 	// functions_admin.php // test
-	public function core_delete_posts_after(event $event)
+	public function core_delete_posts_after(event $event):void
 	{
 		error_log('core.delete_posts_after');
 	}
 
 	// functions_admin.php
-	public function core_delete_topics_before_query(event $event)
+	public function core_delete_topics_before_query(event $event):void
 	{
-		error_log('core.delete_topics_before_query');
-
 		$topic_ids = $event['topic_ids'];
 
 		// catch users for recalculation in after query.
@@ -156,20 +141,20 @@ class update_listener implements EventSubscriberInterface
 	}
 
 	// functions_admin.php
-	public function core_delete_topics_after_query(event $event)
+	public function core_delete_topics_after_query(event $event):void
 	{
 		error_log('core.delete_topics_after_query');
 		$this->update->for_user_ary($this->users_to_recalc);
 	}
 
 	// functions_admin.php // handle in "delete_posts()"
-	public function core_prune_delete_before(event $event)
+	public function core_prune_delete_before(event $event):void
 	{
 		error_log('core.prune_delete_before');
 	}
 
 	// mcp/mcp_queue.php  // test
-	public function core_approve_posts_after(event $event)
+	public function core_approve_posts_after(event $event):void
 	{
 		$post_info = $event['post_info'];
 		$topic_info = $event['topic_info'];
@@ -212,11 +197,10 @@ class update_listener implements EventSubscriberInterface
 		$this->db->sql_freeresult($result);
 
 		$this->update->for_user_ary(array_keys($posters));
-		error_log('core.approve_posts_after');
 	}
 
 	// mcp/mcp_queue.php //test
-	public function core_approve_topics_after(event $event)
+	public function core_approve_topics_after(event $event):void
 	{
 		$topic_info = $event['topic_info'];
 
@@ -228,32 +212,26 @@ class update_listener implements EventSubscriberInterface
 		}
 
 		$this->update->for_user_ary(array_keys($posters));
-
-		error_log('topic_info: ');
-		error_log(json_encode($topic_info));
-		error_log('core.approve_topics_after');
 	}
 
 	// mcp/mcp_queue.php // nothing?
-	public function core_disapprove_posts_after(event $event)
+	public function core_disapprove_posts_after(event $event):void
 	{
 		error_log('disapprove posts after');
 	}
 
 	// phpbb/content_visibility.php //test
-	public function core_set_post_visibility_after(event $event)
+	public function core_set_post_visibility_after(event $event):void
 	{
 		$topic_id = $event['topic_id'];
 		$this->update->for_topic($topic_id);
-		error_log('core.set_post_visibility_after');
 	}
 
 	// phpbb/content_visibility.php //test
-	public function core_set_topic_visibility_after(event $event)
+	public function core_set_topic_visibility_after(event $event):void
 	{
 		$topic_id = $event['topic_id'];
 		$this->update->for_topic($topic_id);
-		error_log('core.set_topic_visibility_after');
 	}
 
 	private function get_topic_poster_ary(array $topic_ids):array

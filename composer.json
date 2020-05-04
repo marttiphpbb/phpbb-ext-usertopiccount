@@ -5,7 +5,7 @@
 	"homepage": "https://github.com/marttiphpbb/phpbb-ext-usertopiccount",
 	"version": "0.5.0",
 	"time": "2018-10-14",
-	"license": "GPL-2.0",
+	"license": "GPL-2.0-only",
 	"authors": [{
 			"name": "martti",
 			"email": "info@martti.be",
@@ -21,7 +21,7 @@
 	"extra": {
 		"display-name": "User Topic Count",
 		"soft-require": {
-			"phpbb/phpbb": ">=3.2.2"
+			"phpbb/phpbb": ">=3.3"
 		},
 		"version-check": {
 			"host": "marttiphpbb.github.io",

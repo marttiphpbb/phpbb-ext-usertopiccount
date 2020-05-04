@@ -2,7 +2,7 @@
 
 /**
 * phpBB Extension - marttiphpbb usertopiccount
-* @copyright (c) 2015 - 2018 marttiphpbb <info@martti.be>
+* @copyright (c) 2015 - 2020 marttiphpbb <info@martti.be>
 * @license GNU General Public License, version 2 (GPL-2.0)
 */
 

@@ -1,7 +1,7 @@
 <?php
 /**
 * phpBB Extension - marttiphpbb usertopiccount
-* @copyright (c) 2015 - 2018 marttiphpbb <info@martti.be>
+* @copyright (c) 2015 - 2020 marttiphpbb <info@martti.be>
 * @license GNU General Public License, version 2 (GPL-2.0)
 */
 
@@ -29,7 +29,7 @@ class update
 		$this->users_table = $users_table;
 	}
 
-	public function for_sql_where(string $sql_where)
+	public function for_sql_where(string $sql_where):void
 	{
 		$sql_where = $sql_where === '' ? '' : ' and ' . $sql_where;
 
@@ -44,17 +44,17 @@ class update
 		$this->db->sql_freeresult($result);
 	}
 
-	public function for_user(int $user_id)
+	public function for_user(int $user_id):void
 	{
 		$this->for_sql_where('user_id = ' . $user_id);
 	}
 
-	public function for_user_ary(array $user_ids)
+	public function for_user_ary(array $user_ids):void
 	{
 		$this->for_sql_where($this->db->sql_in_set('user_id', $user_ids));
 	}
 
-	public function for_user_range(int $start_user_id, int $end_user_id)
+	public function for_user_range(int $start_user_id, int $end_user_id):void
 	{
 		$this->for_sql_where('user_id >= ' . $start_user_id . '
 			and user_id <= ' . $end_user_id);
@@ -73,7 +73,7 @@ class update
 	}
 
 	// approve, dissapprove, delete
-	public function for_topic(int $topic_id)
+	public function for_topic(int $topic_id):void
 	{
 		$sql = 'select topic_poster
 			from ' . $this->topics_table . '

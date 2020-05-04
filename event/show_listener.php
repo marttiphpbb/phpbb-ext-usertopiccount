@@ -1,7 +1,7 @@
 <?php
 /**
 * phpBB Extension - marttiphpbb usertopiccount
-* @copyright (c) 2015 - 2018 marttiphpbb <info@martti.be>
+* @copyright (c) 2015 - 2020 marttiphpbb <info@martti.be>
 * @license GNU General Public License, version 2 (GPL-2.0)
 */
 
@@ -44,7 +44,7 @@ class show_listener implements EventSubscriberInterface
 		$this->phpbb_root_path = $phpbb_root_path;
 	}
 
-	static public function getSubscribedEvents()
+	static public function getSubscribedEvents():array
 	{
 		return [
 			'core.memberlist_view_profile'		=> 'core_memberlist_view_profile',
@@ -55,7 +55,7 @@ class show_listener implements EventSubscriberInterface
 		];
 	}
 
-	public function core_memberlist_view_profile(event $event)
+	public function core_memberlist_view_profile(event $event):void
 	{
 		$member = $event['member'];
 		$user_id = $member['user_id'];
@@ -68,7 +68,7 @@ class show_listener implements EventSubscriberInterface
 		$this->language->add_lang('profile', 'marttiphpbb/usertopiccount');
 	}
 
-	public function core_viewtopic_cache_user_data(event $event)
+	public function core_viewtopic_cache_user_data(event $event):void
 	{
 		$row = $event['row'];
 		$user_cache_data = $event['user_cache_data'];
@@ -80,7 +80,7 @@ class show_listener implements EventSubscriberInterface
 		$event['user_cache_data'] = $user_cache_data;
 	}
 
-	public function core_viewtopic_modify_post_row(event $event)
+	public function core_viewtopic_modify_post_row(event $event):void
 	{
 		$user_poster_data = $event['user_poster_data'];
 		$post_row = $event['post_row'];
@@ -91,7 +91,7 @@ class show_listener implements EventSubscriberInterface
 		$event['post_row'] = $post_row;
 	}
 
-	public function core_ucp_display_module_before(event $event)
+	public function core_ucp_display_module_before(event $event):void
 	{
 		$id = $event['id'];
 		$mode = $event['mode'];
@@ -113,7 +113,7 @@ class show_listener implements EventSubscriberInterface
 		}
 	}
 
-	public function core_ucp_pm_view_message(event $event)
+	public function core_ucp_pm_view_message(event $event):void
 	{
 		$msg_data = $event['msg_data'];
 		$message_row = $event['message_row'];

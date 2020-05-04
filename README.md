@@ -3,7 +3,7 @@
 ## Requirements
 
 * PHP 7.1+
-* phpBB 3.2.2+
+* phpBB 3.3+
 
 ## Features
 
@@ -11,7 +11,7 @@ This extension shows the number of topics the user has started underneath the us
 
 ## Quick Install
 
-You can install this on the latest release of phpBB 3.2 by following the steps below:
+You can install this on the latest release of phpBB by following the steps below:
 
 * Create `marttiphpbb/usertopiccount` in the `ext` directory.
 * Download and unpack the repository into `ext/marttiphpbb/usertopiccount`
