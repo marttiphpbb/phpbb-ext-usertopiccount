@@ -1,4 +1,4 @@
-# phpBB Extension - marttiphpbb usertopiccount
+# phpBB Extension - marttiphpbb user topic count
 
 ## Requirements
 
