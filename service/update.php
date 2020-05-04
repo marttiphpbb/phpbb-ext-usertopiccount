@@ -29,48 +29,35 @@ class update
 		$this->users_table = $users_table;
 	}
 
-	private function update(int $user_id, int $topic_count)
-	{
-		$sql = 'update ' . $this->users_table . '
-			set user_topic_count = ' . $topic_count . '
-			where user_id = ' . $user_id;
-		$this->db->sql_query($sql);
-	}
-
 	public function for_sql_where(string $sql_where)
 	{
-		$sql = 'select count(t.topic_id) as topic_count, u.user_id, u.user_topic_count
-			from ' . $this->topics_table . ' t, ' . $this->users_table . ' u
-			where t.topic_visibility = ' . ITEM_APPROVED . '
-				and t.topic_poster = u.user_id
-				and ' . $sql_where . '
-				and u.user_id <> ' . ANONYMOUS . '
-			group by t.topic_poster
-			having count(t.topic_id) <> u.user_topic_count';
-		$result = $this->db->sql_query($sql);
-		$rows = $this->db->sql_fetchrowset($result);
-		$this->db->sql_freeresult($result);
+		$sql_where = $sql_where === '' ? '' : ' and ' . $sql_where;
 
-		foreach($rows as $row)
-		{
-			$this->update($row['user_id'], $row['topic_count']);
-		}
+		$sql = 'update ' . $this->users_table . '
+			set user_topic_count =
+				(select count(*) from ' . $this->topics_table . '
+				where topic_visibility = ' . ITEM_APPROVED . '
+					and topic_poster = ' . $this->users_table . '.user_id)
+			where user_id <> ' . ANONYMOUS . $sql_where;
+
+		$result = $this->db->sql_query($sql);
+		$this->db->sql_freeresult($result);
 	}
 
 	public function for_user(int $user_id)
 	{
-		$this->for_sql_where('u.user_id = ' . $user_id);
+		$this->for_sql_where('user_id = ' . $user_id);
 	}
 
 	public function for_user_ary(array $user_ids)
 	{
-		$this->for_sql_where($this->db->sql_in_set('u.user_id', $user_ids));
+		$this->for_sql_where($this->db->sql_in_set('user_id', $user_ids));
 	}
 
 	public function for_user_range(int $start_user_id, int $end_user_id)
 	{
-		$this->for_sql_where('u.user_id >= ' . $start_user_id . '
-			and u.user_id <= ' . $end_user_id);
+		$this->for_sql_where('user_id >= ' . $start_user_id . '
+			and user_id <= ' . $end_user_id);
 	}
 
 	public function has_next_user_id(int $end_user_id):bool
@@ -93,7 +80,7 @@ class update
 			where topic_id = ' . $topic_id;
 
 		$result = $this->db->sql_query($sql);
-		$topic_poster = $this->db->sql_fetchfield('topic_poster');
+		$poster_id = $this->db->sql_fetchfield('topic_poster');
 		$this->db->sql_freeresult($result);
 
 		if (isset($poster_id))
