@@ -28,7 +28,7 @@ class mgr_2 extends migration
 		]];
 	}
 
-	public function update_user_topic_count($previous_end):array
+	public function update_user_topic_count($previous_end)
 	{
 		$users_table = $this->table_prefix . 'users';
 		$posts_table = $this->table_prefix . 'posts';

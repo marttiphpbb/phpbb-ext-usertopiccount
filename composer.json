@@ -3,8 +3,8 @@
 	"type": "phpbb-extension",
 	"description": "Show the number of topics the user started",
 	"homepage": "https://github.com/marttiphpbb/phpbb-ext-usertopiccount",
-	"version": "0.6.0",
-	"time": "2020-05-04",
+	"version": "0.6.1",
+	"time": "2020-05-05",
 	"license": "GPL-2.0-only",
 	"authors": [{
 			"name": "martti",
